@@ -13,13 +13,17 @@
 	</div>
 </div>
 
-<section class="page-grid-3">
+<section class="page-grid-4">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Transactions</div>
 		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">0</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Income</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+	</div>
+	<div class="card" style="padding:16px;">
+		<div class="muted" style="font-weight:600;">Total Savings</div>
 		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 	</div>
 	<div class="card" style="padding:16px;">
@@ -40,29 +44,7 @@
 	</div>
 </section>
 
-<section class="card card-pad stack-section">
-	<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-		<div>
-			<div style="font-weight:700;margin-bottom:6px;">Financial Analysis</div>
-			<div class="muted" style="font-weight:700;">Key Insights</div>
-			<ul style="margin-top:8px;line-height:1.8;">
-				<li>Your savings rate has improved by 5.2% compared to last period</li>
-				<li>Housing expenses account for 44% of total spending</li>
-				<li>Income growth is outpacing expense growth</li>
-				<li>You're on track to meet your annual savings goal</li>
-			</ul>
-		</div>
-		<div>
-			<div class="muted" style="font-weight:700;">Recommendations</div>
-			<ul style="margin-top:8px;line-height:1.8;">
-				<li>Consider reducing shopping expenses by 15%</li>
-				<li>Food budget could be optimized for better savings</li>
-				<li>Emergency fund goal: $15,000 (3 months expenses)</li>
-				<li>Investment allocation: 20% of monthly income</li>
-			</ul>
-		</div>
-	</div>
-</section>
+<!-- Financial Analysis and Recommendations removed per request -->
 
 @push('scripts')
 <script>
@@ -73,8 +55,8 @@
 			data: {
 				labels: ['Jan','Feb','Mar','Apr','May','Jun'],
 				datasets: [
-					{ label: 'Income', data: [5800, 6200, 5900, 6500, 6100, 6700], borderColor: '#34d399', tension: 0.3 },
-					{ label: 'Expenses', data: [4100, 4400, 4000, 4700, 4200, 5100], borderColor: '#f87171', tension: 0.3 },
+					{ label: 'Income', data: [], borderColor: '#34d399', tension: 0.3 },
+					{ label: 'Expenses', data: [], borderColor: '#f87171', tension: 0.3 },
 				]
 			},
 			options: {

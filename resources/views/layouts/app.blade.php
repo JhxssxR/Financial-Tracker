@@ -24,7 +24,8 @@
         /* Page spacing utilities */
         .page-header { display:flex; align-items:center; gap:12px; margin: 8px 0 16px; }
         .stack-section { margin-top: 16px; }
-        .page-grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .page-grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+    .page-grid-4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
         .page-grid-2-1 { display:grid; grid-template-columns:2fr 1fr; gap:16px; }
         .card-pad { padding:16px; }
         .card-pad-lg { padding:18px; }
