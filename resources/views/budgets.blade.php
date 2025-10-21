@@ -11,18 +11,18 @@
 <section class="page-grid-3">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Budgeted</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
-		<div class="muted" style="font-size:12px;margin-top:4px;">This month</div>
+		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">This month</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Spent</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
-		<div class="muted" style="font-size:12px;margin-top:4px;">0.0% of budget</div>
+		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">0.0% of budget</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Remaining</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
-		<div class="muted" style="font-size:12px;margin-top:4px;">100.0% remaining</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">100.0% remaining</div>
 	</div>
 </section>
 

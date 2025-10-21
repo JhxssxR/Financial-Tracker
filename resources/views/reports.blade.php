@@ -16,15 +16,15 @@
 <section class="page-grid-3">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Transactions</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;">0</div>
+		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">0</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Income</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Expenses</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
+		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 	</div>
 </section>
 

@@ -57,8 +57,34 @@
         .auth-center { min-height:100vh; display:grid; place-items:center; }
 
         /* Floating chat button */
-        .fab { position:fixed; right:22px; bottom:22px; width:48px; height:48px; border-radius:50%; background:#10b981; border:1px solid #0e7d57; color:#05261d; display:grid; place-items:center; box-shadow:0 8px 24px rgba(0,0,0,.25); cursor:pointer; }
+        .fab { position:fixed; right:22px; bottom:22px; width:56px; height:56px; border-radius:50%; background:#10b981; border:1px solid #0e7d57; color:#05261d; display:grid; place-items:center; box-shadow:0 8px 24px rgba(0,0,0,.25); cursor:pointer; }
         .fab:hover { background:#0fd197; }
+
+        /* Modal styles */
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(3px); z-index:999; display:none; align-items:center; justify-content:center; }
+        .modal-overlay.active { display:flex; }
+        .modal-content { background:#1a2b3a; border:1px solid #2d3d4f; border-radius:16px; width:90%; max-width:550px; max-height:83vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+        .modal-header { padding:18px 22px; border-bottom:1px solid #2d3d4f; display:flex; align-items:center; gap:10px; }
+        .modal-header h2 { font-size:20px; font-weight:700; flex:1; color:#e2e8f0; }
+        .modal-close { background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:22px; padding:4px 8px; line-height:1; width:32px; height:32px; border-radius:6px; }
+        .modal-close:hover { color:#e2e8f0; background:#2d3d4f; }
+        .modal-body { padding:20px 22px; }
+        .modal-footer { padding:14px 22px; border-top:1px solid #2d3d4f; display:flex; gap:10px; justify-content:flex-end; }
+        .type-toggle { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .type-btn { padding:14px 18px; border:2px solid #2d3d4f; border-radius:12px; background:#243442; color:#94a3b8; cursor:pointer; text-align:center; transition:all .2s; display:flex; flex-direction:column; align-items:center; gap:6px; }
+        .type-btn.active { border-color:#10b981; background:rgba(16,185,129,.12); color:#34d399; }
+        .type-btn.active.expense-active { border-color:#dc2626; background:rgba(220,38,38,.15); color:#f87171; }
+        .type-btn:hover:not(.active) { border-color:#3d4d5f; background:#2a3a4a; }
+        .type-btn-icon { font-size:32px; }
+        .type-btn-text { font-weight:600; font-size:15px; }
+        .btn-cancel { background:#374151; border-color:#374151; color:#e2e8f0; padding:11px 18px; font-size:14px; }
+        .btn-cancel:hover { background:#4b5563; }
+        .modal-body .form-label { font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; margin-bottom:7px; color:#cbd5e1; }
+        .modal-body .form-input { background:#2c3e50; border:1px solid #3d4d5f; padding:11px 14px; font-size:14px; color:#e2e8f0; }
+        .modal-body .form-input::placeholder { color:#6b7a8f; }
+        .modal-body .form-input:focus { border-color:#4d6a8f; }
+        .modal-body .form-group { margin-bottom:16px; }
+        .modal-body select.form-input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; }
     </style>
     @stack('head')
  </head>
@@ -80,8 +106,15 @@
                 <a class="{{ request()->routeIs('savings.*') ? 'active' : '' }}" href="{{ route('savings.index') }}">Savings</a>
                 <a class="{{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">Reports</a>
             </nav>
-            <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
-                <span class="muted">JA</span>
+            <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
+                <button style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <button style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="Jhasser Antukan">
+                    JA
+                </button>
             </div>
         </div>
     </header>
@@ -93,7 +126,7 @@
 
     @unless($isAuth)
         <button id="ai-chat-trigger" class="fab" title="Chat with AI" aria-label="Open chatbot">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 12c0 4.418-4.03 8-9 8-1.1 0-2.15-.167-3.11-.474L3 21l1.6-3.2C3.61 16.432 3 14.79 3 13c0-4.418 4.03-8 9-8s9 3.582 9 7z" stroke="#05261d" stroke-width="1.5" fill="#d1fae5"/>
                 <circle cx="9" cy="12" r="1.25" fill="#065f46"/>
                 <circle cx="12" cy="12" r="1.25" fill="#065f46"/>

@@ -6,18 +6,18 @@
 <section class="page-grid-3">
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Total Savings</div>
-        <div style="font-size:28px;font-weight:700; margin-top:6px;">$0.00</div>
-        <div class="muted" style="font-size:12px;margin-top:4px;">+0.0% of income</div>
+        <div style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">$0.00</div>
+        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">+0.0% of income</div>
     </div>
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Income</div>
-        <div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
-        <div class="muted" style="font-size:12px;margin-top:4px;">This month</div>
+        <div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">This month</div>
     </div>
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Expenses</div>
-        <div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;">$0.00</div>
-        <div class="muted" style="font-size:12px;margin-top:4px;">0.0% of income</div>
+        <div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
+        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">0.0% of income</div>
     </div>
 </section>
 
