@@ -4,17 +4,17 @@
 <h1 style="font-size:28px;font-weight:700;" class="page-header">Savings Account</h1>
 
 <section class="page-grid-3">
-	<div class="card" style="padding:16px;">
+	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Balance</div>
 		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">Available for withdrawal</div>
 	</div>
-	<div class="card" style="padding:16px;">
+	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Deposits</div>
 		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">All time deposits</div>
 	</div>
-	<div class="card" style="padding:16px;">
+	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Withdrawals</div>
 		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">$0.00</div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">All time withdrawals</div>

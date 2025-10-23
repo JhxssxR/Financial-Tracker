@@ -8,21 +8,23 @@
     <div class="form-title">Create Account</div>
     <div class="form-subtitle">Join PF Trackers and start managing your finances</div>
 
-    <form method="post" action="#" onsubmit="return false;">
-        <div class="form-row">
-            <div class="form-group">
-                <label class="form-label">First Name</label>
-                <div class="input-wrap">
-                    <span class="input-icon-left">👤</span>
-                    <input class="form-input pad-left-icon" type="text" placeholder="First name" required />
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Last Name</label>
-                <div class="input-wrap">
-                    <span class="input-icon-left">👤</span>
-                    <input class="form-input pad-left-icon" type="text" placeholder="Last name" required />
-                </div>
+    @if ($errors->any())
+        <div style="background:#fee;border:1px solid #fcc;border-radius:8px;padding:12px;margin-bottom:16px;">
+            <ul style="margin:0;padding-left:20px;">
+                @foreach ($errors->all() as $error)
+                    <li style="color:#c00;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('register') }}">
+        @csrf
+        <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <div class="input-wrap">
+                <span class="input-icon-left">👤</span>
+                <input class="form-input pad-left-icon" type="text" name="name" value="{{ old('name') }}" placeholder="Enter your full name" required />
             </div>
         </div>
 
@@ -30,7 +32,7 @@
             <label class="form-label">Email Address</label>
             <div class="input-wrap">
                 <span class="input-icon-left">📧</span>
-                <input class="form-input pad-left-icon" type="email" placeholder="Enter your email" required />
+                <input class="form-input pad-left-icon" type="email" name="email" value="{{ old('email') }}" placeholder="Enter your email" required />
             </div>
         </div>
 
@@ -38,8 +40,8 @@
             <label class="form-label">Password</label>
             <div class="input-wrap">
                 <span class="input-icon-left">🔒</span>
-                <input class="form-input pad-left-icon pad-right-icon" id="reg-password" type="password" placeholder="Create password" required />
-                <span class="input-icon-right" onclick="const i=document.getElementById('reg-password'); i.type=i.type==='password'?'text':'password';">👁️</span>
+                <input class="form-input pad-left-icon pad-right-icon" id="reg-password" name="password" type="password" placeholder="Create password (min 6 characters)" required />
+                <span class="input-icon-right" onclick="const i=document.getElementById('reg-password'); i.type=i.type==='password'?'text':'password';" style="cursor:pointer;">👁️</span>
             </div>
         </div>
 
@@ -47,8 +49,8 @@
             <label class="form-label">Confirm Password</label>
             <div class="input-wrap">
                 <span class="input-icon-left">🔒</span>
-                <input class="form-input pad-left-icon pad-right-icon" id="reg-password2" type="password" placeholder="Confirm password" required />
-                <span class="input-icon-right" onclick="const i=document.getElementById('reg-password2'); i.type=i.type==='password'?'text':'password';">👁️</span>
+                <input class="form-input pad-left-icon pad-right-icon" id="reg-password2" name="password_confirmation" type="password" placeholder="Confirm password" required />
+                <span class="input-icon-right" onclick="const i=document.getElementById('reg-password2'); i.type=i.type==='password'?'text':'password';" style="cursor:pointer;">👁️</span>
             </div>
         </div>
 

@@ -74,7 +74,7 @@
         .type-toggle { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
         .type-btn { padding:14px 18px; border:2px solid #2d3d4f; border-radius:12px; background:#243442; color:#94a3b8; cursor:pointer; text-align:center; transition:all .2s; display:flex; flex-direction:column; align-items:center; gap:6px; }
         .type-btn.active { border-color:#10b981; background:rgba(16,185,129,.12); color:#34d399; }
-        .type-btn.active.expense-active { border-color:#dc2626; background:rgba(220,38,38,.15); color:#f87171; }
+        .type-btn.active.expense-active { border-color:#3b82f6; background:rgba(59,130,246,.15); color:#60a5fa; }
         .type-btn:hover:not(.active) { border-color:#3d4d5f; background:#2a3a4a; }
         .type-btn-icon { font-size:32px; }
         .type-btn-text { font-weight:600; font-size:15px; }
@@ -113,9 +113,44 @@
                         <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </button>
-                <button style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="Jhasser Antukan">
-                    JA
-                </button>
+                @auth
+                <div style="position:relative;" id="user-menu">
+                    <button onclick="toggleUserMenu()" style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="{{ Auth::user()->name }}">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                    </button>
+                    <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1e293b;border:1px solid #334155;border-radius:8px;min-width:200px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:100;">
+                        <div style="padding:12px;border-bottom:1px solid #334155;">
+                            <div style="font-weight:600;color:#e2e8f0;">{{ Auth::user()->name }}</div>
+                            <div style="font-size:13px;color:#94a3b8;">{{ Auth::user()->email }}</div>
+                        </div>
+                        <div style="padding:6px;">
+                            <a href="{{ route('profile.index') }}" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Profile
+                            </a>
+                            <a href="{{ route('settings.index') }}" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Settings
+                            </a>
+                            <div style="border-top:1px solid #334155;margin:6px 0;"></div>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#f87171;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @endauth
             </div>
         </div>
     </header>
@@ -139,6 +174,21 @@
             document.getElementById('ai-chat-trigger')?.addEventListener('click', () => {
                 console.log('Chatbot trigger clicked');
                 // TODO: open your AI chat widget here
+            });
+
+            // User menu toggle
+            function toggleUserMenu() {
+                const dropdown = document.getElementById('user-dropdown');
+                dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                const userMenu = document.getElementById('user-menu');
+                const dropdown = document.getElementById('user-dropdown');
+                if (userMenu && dropdown && !userMenu.contains(event.target)) {
+                    dropdown.style.display = 'none';
+                }
             });
         </script>
     @endunless

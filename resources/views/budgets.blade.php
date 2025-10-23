@@ -4,7 +4,7 @@
 <div class="page-header" style="display:flex;align-items:center;gap:12px;">
 	<h1 style="font-size:28px;font-weight:700;">Budget Management</h1>
 	<div style="margin-left:auto;">
-		<button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;">Create Budget</button>
+		<button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;"> + Create Budget</button>
 	</div>
 </div>
 
