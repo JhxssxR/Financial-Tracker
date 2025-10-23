@@ -108,11 +108,11 @@
                 <a class="{{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}">Reports</a>
             </nav>
             <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
-                <button style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
+                <a href="{{ route('notifications.index') }}" style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                </button>
+                </a>
                 @auth
                 <div style="position:relative;" id="user-menu">
                     <button onclick="toggleUserMenu()" style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="{{ Auth::user()->name }}">

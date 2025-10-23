@@ -9,6 +9,7 @@ use App\Http\Controllers\SavingsController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 
 // Authentication routes (for guests only)
 Route::middleware('guest')->group(function () {
@@ -33,4 +34,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
 });
