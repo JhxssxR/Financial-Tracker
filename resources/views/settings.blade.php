@@ -22,153 +22,81 @@
         </div>
 
         <!-- Current Currency Display -->
-        <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:20px;">
+        <div style="background:#0b1220;border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:20px;" id="current-currency-display">
             <div class="muted" style="font-size:13px;margin-bottom:8px;">Current Currency</div>
             <div style="display:flex;align-items:center;gap:12px;">
-                <div style="width:40px;height:40px;background:#1e293b;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:14px;color:#10b981;">
-                    EU
+                <div style="width:40px;height:40px;background:#1e293b;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:14px;color:#10b981;" id="current-currency-code">
+                    {{ Auth::user()->currency_code ?? 'EUR' }}
                 </div>
                 <div>
-                    <div style="font-weight:600;font-size:15px;">Euro</div>
-                    <div class="muted" style="font-size:13px;">€ EUR</div>
+                    <div style="font-weight:600;font-size:15px;" id="current-currency-name">
+                        @php
+                            $currencies = [
+                                'USD' => ['name' => 'US Dollar', 'symbol' => '$'],
+                                'EUR' => ['name' => 'Euro', 'symbol' => '€'],
+                                'GBP' => ['name' => 'British Pound', 'symbol' => '£'],
+                                'JPY' => ['name' => 'Japanese Yen', 'symbol' => '¥'],
+                                'CAD' => ['name' => 'Canadian Dollar', 'symbol' => '$'],
+                                'AUD' => ['name' => 'Australian Dollar', 'symbol' => '$'],
+                                'CHF' => ['name' => 'Swiss Franc', 'symbol' => 'Fr'],
+                                'CNY' => ['name' => 'Chinese Yuan', 'symbol' => '¥'],
+                                'INR' => ['name' => 'Indian Rupee', 'symbol' => '₹'],
+                                'PHP' => ['name' => 'Philippine Peso', 'symbol' => '₱'],
+                            ];
+                            $currentCode = Auth::user()->currency_code ?? 'EUR';
+                            echo $currencies[$currentCode]['name'];
+                        @endphp
+                    </div>
+                    <div class="muted" style="font-size:13px;" id="current-currency-symbol">{{ Auth::user()->currency_symbol ?? '€' }} {{ Auth::user()->currency_code ?? 'EUR' }}</div>
                 </div>
             </div>
         </div>
 
         <!-- Currency Grid -->
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
-            <!-- US Dollar -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        US
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">US Dollar</div>
-                        <div class="muted" style="font-size:12px;">$ USD</div>
-                    </div>
-                </div>
-            </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0px;">
+            @php
+                $userCurrency = Auth::user()->currency_code ?? 'EUR';
+                $allCurrencies = [
+                    ['code' => 'USD', 'name' => 'US Dollar', 'symbol' => '$', 'abbr' => 'US'],
+                    ['code' => 'EUR', 'name' => 'Euro', 'symbol' => '€', 'abbr' => 'EU'],
+                    ['code' => 'GBP', 'name' => 'British Pound', 'symbol' => '£', 'abbr' => 'GB'],
+                    ['code' => 'JPY', 'name' => 'Japanese Yen', 'symbol' => '¥', 'abbr' => 'JP'],
+                    ['code' => 'CAD', 'name' => 'Canadian Dollar', 'symbol' => '$', 'abbr' => 'CA'],
+                    ['code' => 'AUD', 'name' => 'Australian Dollar', 'symbol' => '$', 'abbr' => 'AU'],
+                    ['code' => 'CHF', 'name' => 'Swiss Franc', 'symbol' => 'Fr', 'abbr' => 'CH'],
+                    ['code' => 'CNY', 'name' => 'Chinese Yuan', 'symbol' => '¥', 'abbr' => 'CN'],
+                    ['code' => 'INR', 'name' => 'Indian Rupee', 'symbol' => '₹', 'abbr' => 'IN'],
+                    ['code' => 'PHP', 'name' => 'Philippine Peso', 'symbol' => '₱', 'abbr' => 'PH'],
+                ];
+            @endphp
 
-            <!-- Euro (Selected) -->
-            <div style="background:rgba(16,185,129,.12);border:2px solid #10b981;border-radius:12px;padding:14px;cursor:pointer;position:relative;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#1a2b3a;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#10b981;">
-                        EU
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;color:#34d399;">Euro</div>
-                        <div style="font-size:12px;color:#6ee7b7;">€ EUR</div>
-                    </div>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 13l4 4L19 7" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </div>
-            </div>
-
-            <!-- British Pound -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        GB
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">British Pound</div>
-                        <div class="muted" style="font-size:12px;">£ GBP</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Japanese Yen -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        JP
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Japanese Yen</div>
-                        <div class="muted" style="font-size:12px;">¥ JPY</div>
+            @foreach($allCurrencies as $curr)
+                @php $isSelected = $userCurrency === $curr['code']; @endphp
+                <!-- {{ $curr['name'] }} -->
+                <div class="currency-option {{ $isSelected ? 'selected' : '' }}" 
+                     data-code="{{ $curr['code'] }}" 
+                     data-symbol="{{ $curr['symbol'] }}" 
+                     data-name="{{ $curr['name'] }}"
+                     data-abbr="{{ $curr['abbr'] }}"
+                     style="background:#1a2b3a;border:2px solid {{ $isSelected ? '#10b981' : '#2d3d4f' }};border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;position:relative;"
+                     onmouseover="if(!this.classList.contains('selected')) { this.style.background='#243442'; this.style.borderColor='#3d4d5f'; }" 
+                     onmouseout="if(!this.classList.contains('selected')) { this.style.background='#1a2b3a'; this.style.borderColor='#2d3d4f'; }">
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
+                            {{ $curr['abbr'] }}
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600;font-size:14px;">{{ $curr['name'] }}</div>
+                            <div style="font-size:12px;color:#94a3b8;">{{ $curr['symbol'] }} {{ $curr['code'] }}</div>
+                        </div>
+                        @if($isSelected)
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="selected-checkmark">
+                            <path d="M5 13l4 4L19 7" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        @endif
                     </div>
                 </div>
-            </div>
-
-            <!-- Canadian Dollar -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        CA
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Canadian Dollar</div>
-                        <div class="muted" style="font-size:12px;">$ CAD</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Australian Dollar -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        AU
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Australian Dollar</div>
-                        <div class="muted" style="font-size:12px;">$ AUD</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Swiss Franc -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        CH
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Swiss Franc</div>
-                        <div class="muted" style="font-size:12px;">Fr CHF</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Chinese Yuan -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        CN
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Chinese Yuan</div>
-                        <div class="muted" style="font-size:12px;">¥ CNY</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Indian Rupee -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        IN
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Indian Rupee</div>
-                        <div class="muted" style="font-size:12px;">₹ INR</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Philippine Peso -->
-            <div style="background:#1a2b3a;border:2px solid #2d3d4f;border-radius:12px;padding:14px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#3d4d5f'" onmouseout="this.style.borderColor='#2d3d4f'">
-                <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="width:36px;height:36px;background:#243442;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:13px;">
-                        PH
-                    </div>
-                    <div style="flex:1;">
-                        <div style="font-weight:600;font-size:14px;">Philippine Peso</div>
-                        <div class="muted" style="font-size:12px;">₱ PHP</div>
-                    </div>
-                </div>
-            </div>
+            @endforeach
         </div>
     </div>
 
@@ -325,6 +253,14 @@
         </div>
     </div>
 
+    <!-- Success Notification -->
+    <div id="success-notification" style="position:fixed;top:80px;right:24px;background:#10b981;color:#fff;padding:16px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;align-items:center;gap:12px;z-index:1000;animation:slideIn 0.3s ease-out;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span style="font-weight:600;">Settings saved successfully!</span>
+    </div>
+
     <!-- Action Buttons -->
     <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
         <button onclick="window.location.href='{{ route('dashboard') }}'" style="background:#374151;border:1px solid #4b5563;color:#e2e8f0;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#4b5563'" onmouseout="this.style.background='#374151'">
@@ -339,8 +275,33 @@
     </div>
 </div>
 
+<style>
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+</style>
+
 @push('scripts')
 <script>
+    let selectedCurrency = null;
+
     // Initialize all toggle switches
     document.querySelectorAll('.toggle-switch').forEach(checkbox => {
         const label = checkbox.closest('label');
@@ -363,58 +324,53 @@
         checkbox.addEventListener('change', updateToggle);
     });
 
-    // Handle currency selection
-    document.querySelectorAll('[style*="cursor:pointer"]').forEach(item => {
-        item.addEventListener('click', function() {
-            // Remove selection from all items
-            document.querySelectorAll('[style*="cursor:pointer"]').forEach(el => {
-                if (el !== this) {
-                    el.style.background = '#1a2b3a';
-                    el.style.border = '2px solid #2d3d4f';
-                    // Reset text colors
-                    const nameDiv = el.querySelector('div:nth-child(2) > div:first-child');
-                    const codeDiv = el.querySelector('div:nth-child(2) > div:last-child');
-                    const badge = el.querySelector('div:first-child > div');
-                    if (nameDiv) nameDiv.style.color = '';
-                    if (codeDiv) codeDiv.className = 'muted';
-                    if (badge) badge.style.color = '';
-                    // Remove checkmark
-                    const svg = el.querySelector('svg');
-                    if (svg) svg.remove();
-                }
+    // Handle currency selection (visual only, doesn't save yet)
+    document.querySelectorAll('.currency-option').forEach(option => {
+        option.addEventListener('click', function() {
+            const code = this.dataset.code;
+            const symbol = this.dataset.symbol;
+            const name = this.dataset.name;
+            const abbr = this.dataset.abbr;
+            
+            // Store selected currency for later save
+            selectedCurrency = { code, symbol, name, abbr };
+            
+            // Update all currency options styling - Reset all to unselected
+            document.querySelectorAll('.currency-option').forEach(opt => {
+                opt.style.borderColor = '#2d3d4f';
+                opt.classList.remove('selected');
+                
+                // Remove checkmark
+                const checkmark = opt.querySelector('.selected-checkmark');
+                if (checkmark) checkmark.remove();
             });
             
-            // Add selection to clicked item
-            this.style.background = 'rgba(16,185,129,.12)';
-            this.style.border = '2px solid #10b981';
+            // Apply green border to selected option
+            this.style.borderColor = '#10b981';
+            this.classList.add('selected');
             
-            // Update text colors
-            const nameDiv = this.querySelector('div:nth-child(2) > div:first-child');
-            const codeDiv = this.querySelector('div:nth-child(2) > div:last-child');
-            const badge = this.querySelector('div:first-child > div');
-            if (nameDiv) nameDiv.style.color = '#34d399';
-            if (codeDiv) {
-                codeDiv.style.color = '#6ee7b7';
-                codeDiv.className = '';
-            }
-            if (badge) badge.style.color = '#10b981';
+            // Add green checkmark
+            const checkmarkSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            checkmarkSvg.setAttribute('width', '20');
+            checkmarkSvg.setAttribute('height', '20');
+            checkmarkSvg.setAttribute('viewBox', '0 0 24 24');
+            checkmarkSvg.setAttribute('fill', 'none');
+            checkmarkSvg.classList.add('selected-checkmark');
             
-            // Add checkmark if not exists
-            if (!this.querySelector('svg')) {
-                const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.setAttribute('width', '20');
-                svg.setAttribute('height', '20');
-                svg.setAttribute('viewBox', '0 0 24 24');
-                svg.setAttribute('fill', 'none');
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', 'M5 13l4 4L19 7');
-                path.setAttribute('stroke', '#10b981');
-                path.setAttribute('stroke-width', '2.5');
-                path.setAttribute('stroke-linecap', 'round');
-                path.setAttribute('stroke-linejoin', 'round');
-                svg.appendChild(path);
-                this.querySelector('div:first-child').appendChild(svg);
-            }
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', 'M5 13l4 4L19 7');
+            path.setAttribute('stroke', '#10b981');
+            path.setAttribute('stroke-width', '2.5');
+            path.setAttribute('stroke-linecap', 'round');
+            path.setAttribute('stroke-linejoin', 'round');
+            
+            checkmarkSvg.appendChild(path);
+            this.querySelector('div').appendChild(checkmarkSvg);
+            
+            // Update current currency display
+            document.getElementById('current-currency-code').textContent = abbr;
+            document.getElementById('current-currency-name').textContent = name;
+            document.getElementById('current-currency-symbol').textContent = symbol + ' ' + code;
         });
     });
 
@@ -441,14 +397,62 @@
         }
     }
 
+    // Show notification function
+    function showNotification() {
+        const notification = document.getElementById('success-notification');
+        notification.style.display = 'flex';
+        notification.style.animation = 'slideIn 0.3s ease-out';
+        
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.3s ease-out';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 300);
+        }, 1000);
+    }
+
+    // Save settings button - saves currency selection
     function saveSettings() {
-        // Get selected currency
-        const selectedCurrency = document.querySelector('[style*="rgba(16,185,129"]');
         if (selectedCurrency) {
-            const currencyName = selectedCurrency.querySelector('div:nth-child(2) > div:first-child').textContent;
-            alert('Settings saved successfully!\n\nCurrency: ' + currencyName);
+            console.log('Saving currency:', selectedCurrency);
+            
+            // Send AJAX request to update currency
+            fetch('{{ route("settings.currency") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    currency_code: selectedCurrency.code
+                })
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Response data:', data);
+                if (data.success) {
+                    // Show notification
+                    showNotification();
+                    
+                    // Reload page after notification disappears
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1300);
+                } else {
+                    alert('Failed to save currency. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to save settings. Please try again.');
+            });
         } else {
-            alert('Settings saved successfully!');
+            console.log('No currency selected');
+            // If no currency change, just show notification
+            showNotification();
         }
     }
 </script>

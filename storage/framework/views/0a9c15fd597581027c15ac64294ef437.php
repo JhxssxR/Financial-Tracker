@@ -1,13 +1,13 @@
-@extends('layouts.app')
 
-@section('content')
-@push('head')
+
+<?php $__env->startSection('content'); ?>
+<?php $__env->startPush('head'); ?>
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="expires" content="0" />
-@endpush
-<!-- reports-cb: {{ $cb ?? now()->timestamp }} -->
-{{-- Currency will render via format_currency() just like Dashboard --}}
+<?php $__env->stopPush(); ?>
+<!-- reports-cb: <?php echo e($cb ?? now()->timestamp); ?> -->
+
 <div class="page-header" style="display:flex;align-items:center;gap:12px;">
 	<h1 style="font-size:28px;font-weight:700;">Financial Reports</h1>
 	<div style="margin-left:auto;display:flex;gap:8px;">
@@ -28,19 +28,19 @@
 <section style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Transactions</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ $totalTransactions ?? 0 }}</div>
+		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e($totalTransactions ?? 0); ?></div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Income</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalIncome ?? 0) }}</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalIncome ?? 0)); ?></div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Savings</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalSavings ?? 0) }}</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalSavings ?? 0)); ?></div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Expenses</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalExpenses ?? 0) }}</div>
+		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalExpenses ?? 0)); ?></div>
 	</div>
 </section>
 
@@ -58,11 +58,11 @@
 
 
 
-@push('scripts')
+<?php $__env->startPush('scripts'); ?>
 <script>
 	const reportsTrend = document.getElementById('reportsTrend');
 	if (reportsTrend && window.Chart) {
-		const monthlyData = @json($monthlyData ?? ['months' => [], 'income' => [], 'expenses' => []]);
+		const monthlyData = <?php echo json_encode($monthlyData ?? ['months' => [], 'income' => [], 'expenses' => []]) ?>;
 		
 		new Chart(reportsTrend, {
 			type: 'line',
@@ -83,5 +83,7 @@
 		});
 	}
 </script>
-@endpush
-@endsection
+<?php $__env->stopPush(); ?>
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/reports.blade.php ENDPATH**/ ?>

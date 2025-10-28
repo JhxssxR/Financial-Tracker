@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>PF Trackers</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -88,13 +88,13 @@
         .modal-body .form-group { margin-bottom:16px; }
         .modal-body select.form-input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 14px center; padding-right:40px; }
     </style>
-    @stack('head')
+    <?php echo $__env->yieldPushContent('head'); ?>
  </head>
 <body class="h-full">
-    @php
+    <?php
         $isAuth = request()->routeIs('login') || request()->routeIs('register');
-    @endphp
-    @unless($isAuth)
+    ?>
+    <?php if (! ($isAuth)): ?>
     <header class="nav">
         <div class="container" style="display:flex;align-items:center;gap:18px;">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -102,36 +102,37 @@
                 <strong>PF Trackers</strong>
             </div>
             <nav style="display:flex;gap:6px;">
-                <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
-                <a class="{{ request()->routeIs('transactions.*') ? 'active' : '' }}" href="{{ route('transactions.index') }}">Transactions</a>
-                <a class="{{ request()->routeIs('budgets.*') ? 'active' : '' }}" href="{{ route('budgets.index') }}">Budgets</a>
-                <a class="{{ request()->routeIs('savings.*') ? 'active' : '' }}" href="{{ route('savings.index') }}">Savings</a>
-                <a class="{{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index', ['cb' => now()->timestamp]) }}">Reports</a>
+                <a class="<?php echo e(request()->routeIs('dashboard') ? 'active' : ''); ?>" href="<?php echo e(route('dashboard')); ?>">Dashboard</a>
+                <a class="<?php echo e(request()->routeIs('transactions.*') ? 'active' : ''); ?>" href="<?php echo e(route('transactions.index')); ?>">Transactions</a>
+                <a class="<?php echo e(request()->routeIs('budgets.*') ? 'active' : ''); ?>" href="<?php echo e(route('budgets.index')); ?>">Budgets</a>
+                <a class="<?php echo e(request()->routeIs('savings.*') ? 'active' : ''); ?>" href="<?php echo e(route('savings.index')); ?>">Savings</a>
+                <a class="<?php echo e(request()->routeIs('reports.*') ? 'active' : ''); ?>" href="<?php echo e(route('reports.index', ['cb' => now()->timestamp])); ?>">Reports</a>
             </nav>
             <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
-                <a href="{{ route('notifications.index') }}" style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
+                <a href="<?php echo e(route('notifications.index')); ?>" style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </a>
-                @auth
+                <?php if(auth()->guard()->check()): ?>
                 <div style="position:relative;" id="user-menu">
-                    <button onclick="toggleUserMenu()" style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="{{ Auth::user()->name }}">
-                        {{ strtoupper(substr(Auth::user()->name, 0, 2)) }}
+                    <button onclick="toggleUserMenu()" style="width:32px;height:32px;background:#10b981;border:none;border-radius:50%;cursor:pointer;display:grid;place-items:center;color:#06251d;font-weight:700;font-size:13px;transition:background .2s;" onmouseover="this.style.background='#0fd197'" onmouseout="this.style.background='#10b981'" title="<?php echo e(Auth::user()->name); ?>">
+                        <?php echo e(strtoupper(substr(Auth::user()->name, 0, 2))); ?>
+
                     </button>
                     <div id="user-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1e293b;border:1px solid #334155;border-radius:8px;min-width:200px;box-shadow:0 4px 12px rgba(0,0,0,.3);z-index:100;">
                         <div style="padding:12px;border-bottom:1px solid #334155;">
-                            <div style="font-weight:600;color:#e2e8f0;">{{ Auth::user()->name }}</div>
-                            <div style="font-size:13px;color:#94a3b8;">{{ Auth::user()->email }}</div>
+                            <div style="font-weight:600;color:#e2e8f0;"><?php echo e(Auth::user()->name); ?></div>
+                            <div style="font-size:13px;color:#94a3b8;"><?php echo e(Auth::user()->email); ?></div>
                         </div>
                         <div style="padding:6px;">
-                            <a href="{{ route('profile.index') }}" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                            <a href="<?php echo e(route('profile.index')); ?>" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 </svg>
                                 Profile
                             </a>
-                            <a href="{{ route('settings.index') }}" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
+                            <a href="<?php echo e(route('settings.index')); ?>" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#e2e8f0;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;text-decoration:none;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='transparent'">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -139,8 +140,8 @@
                                 Settings
                             </a>
                             <div style="border-top:1px solid #334155;margin:6px 0;"></div>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
+                            <form method="POST" action="<?php echo e(route('logout')); ?>">
+                                <?php echo csrf_field(); ?>
                                 <button type="submit" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#f87171;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -151,17 +152,17 @@
                         </div>
                     </div>
                 </div>
-                @endauth
+                <?php endif; ?>
             </div>
         </div>
     </header>
-    @endunless
+    <?php endif; ?>
 
-    <main class="container {{ $isAuth ? 'auth-center' : '' }}" style="{{ $isAuth ? 'max-width:100%;' : '' }}">
-        @yield('content')
+    <main class="container <?php echo e($isAuth ? 'auth-center' : ''); ?>" style="<?php echo e($isAuth ? 'max-width:100%;' : ''); ?>">
+        <?php echo $__env->yieldContent('content'); ?>
     </main>
 
-    @unless($isAuth)
+    <?php if (! ($isAuth)): ?>
         <button id="ai-chat-trigger" class="fab" title="Chat with AI" aria-label="Open chatbot">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 12c0 4.418-4.03 8-9 8-1.1 0-2.15-.167-3.11-.474L3 21l1.6-3.2C3.61 16.432 3 14.79 3 13c0-4.418 4.03-8 9-8s9 3.582 9 7z" stroke="#05261d" stroke-width="1.5" fill="#d1fae5"/>
@@ -192,8 +193,9 @@
                 }
             });
         </script>
-    @endunless
+    <?php endif; ?>
 
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/layouts/app.blade.php ENDPATH**/ ?>

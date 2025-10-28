@@ -1,6 +1,6 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <div class="page-header" style="display:flex;align-items:center;gap:12px;">
     <h1 style="font-size:28px;font-weight:700;">Transactions</h1>
     <div style="margin-left:auto;display:flex;gap:8px;">
@@ -15,15 +15,15 @@
  </div><section class="page-grid-3">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Transactions</div>
-		<div style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ $totalTransactions }}</div>
+		<div style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;"><?php echo e($totalTransactions); ?></div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Income</div>
-		<div class="brand" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalIncome) }}</div>
+		<div class="brand" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;"><?php echo e(format_currency($totalIncome)); ?></div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Expenses</div>
-		<div class="danger" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalExpenses) }}</div>
+		<div class="danger" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;"><?php echo e(format_currency($totalExpenses)); ?></div>
 	</div>
 </section>
 
@@ -54,24 +54,26 @@
 				</tr>
 			</thead>
 			<tbody>
-				@forelse($transactions as $transaction)
+				<?php $__empty_1 = true; $__currentLoopData = $transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
 				<tr style="border-bottom:1px solid #1e293b;">
-					<td style="padding:14px 8px;color:#cbd5e1;">{{ $transaction->transaction_date->format('M d, Y') }}</td>
-					<td style="padding:14px 8px;">{{ $transaction->description }}</td>
+					<td style="padding:14px 8px;color:#cbd5e1;"><?php echo e($transaction->transaction_date->format('M d, Y')); ?></td>
+					<td style="padding:14px 8px;"><?php echo e($transaction->description); ?></td>
 					<td style="padding:14px 8px;">
 						<span style="background:#1e293b;padding:4px 10px;border-radius:6px;font-size:12px;">
-							{{ $transaction->category->name ?? 'Uncategorized' }}
+							<?php echo e($transaction->category->name ?? 'Uncategorized'); ?>
+
 						</span>
 					</td>
-					<td style="padding:14px 8px;text-align:right;font-weight:600;color:{{ $transaction->type === 'income' ? '#10b981' : '#f87171' }};">
-						{{ $transaction->type === 'income' ? '+' : '-' }}{{ format_currency($transaction->amount) }}
+					<td style="padding:14px 8px;text-align:right;font-weight:600;color:<?php echo e($transaction->type === 'income' ? '#10b981' : '#f87171'); ?>;">
+						<?php echo e($transaction->type === 'income' ? '+' : '-'); ?><?php echo e(format_currency($transaction->amount)); ?>
+
 					</td>
 				</tr>
-				@empty
+				<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
 				<tr>
 					<td colspan="4" style="text-align:center;padding:32px;" class="muted">No transactions found</td>
 				</tr>
-				@endforelse
+				<?php endif; ?>
 			</tbody>
         </table>
     </div>
@@ -89,8 +91,8 @@
             <button class="modal-close" onclick="closeTransactionModal()">✕</button>
         </div>
         <div class="modal-body">
-            <form id="transactionForm" method="POST" action="{{ route('transactions.store') }}">
-                @csrf
+            <form id="transactionForm" method="POST" action="<?php echo e(route('transactions.store')); ?>">
+                <?php echo csrf_field(); ?>
                 <input type="hidden" name="type" id="transactionType" value="income">
                 
                 <div class="form-group">
@@ -152,7 +154,7 @@
                         </svg>
                         <span>Date</span>
                     </label>
-                    <input class="form-input" name="transaction_date" type="date" value="{{ date('Y-m-d') }}" required />
+                    <input class="form-input" name="transaction_date" type="date" value="<?php echo e(date('Y-m-d')); ?>" required />
                 </div>
             </form>
         </div>
@@ -169,7 +171,7 @@
     let currentType = 'income';
 
     // Categories from database
-    const categoriesData = @json($categories);
+    const categoriesData = <?php echo json_encode($categories, 15, 512) ?>;
 
     function updateCategories() {
         const select = document.getElementById('categorySelect');
@@ -262,7 +264,7 @@
                 // After a successful add, send user to the Dashboard
                 // so the summary cards reflect immediately.
                 closeTransactionModal();
-                window.location.href = "{{ route('dashboard') }}";
+                window.location.href = "<?php echo e(route('dashboard')); ?>";
             } else {
                 alert('Error adding transaction. Please try again.');
                 submitBtn.disabled = false;
@@ -291,4 +293,5 @@
         }
     });
 </script>
-@endsection
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/transactions.blade.php ENDPATH**/ ?>

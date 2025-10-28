@@ -1,22 +1,22 @@
-@extends('layouts.app')
 
-@section('content')
+
+<?php $__env->startSection('content'); ?>
 <h1 style="font-size:28px;font-weight:700;" class="page-header">Savings Account</h1>
 
 <section class="page-grid-3">
 	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Balance</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency(0) }}</div>
+		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency(0)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">Available for withdrawal</div>
 	</div>
 	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Deposits</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency(0) }}</div>
+		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency(0)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">All time deposits</div>
 	</div>
 	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Withdrawals</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency(0) }}</div>
+		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency(0)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">All time withdrawals</div>
 	</div>
 </section>
@@ -39,4 +39,6 @@
 <section class="card" style="padding:24px;text-align:center;" class="stack-section">
 	<div class="muted">No savings transactions yet<br>Start saving by making your first deposit!</div>
  </section>
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/savings.blade.php ENDPATH**/ ?>
