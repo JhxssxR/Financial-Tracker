@@ -44,8 +44,36 @@
                     <td style="padding:14px 8px;color:#cbd5e1;"><?php echo e($transaction->transaction_date->format('M d, Y')); ?></td>
                     <td style="padding:14px 8px;"><?php echo e($transaction->description); ?></td>
                     <td style="padding:14px 8px;">
-                        <span style="background:#1e293b;padding:4px 10px;border-radius:6px;font-size:12px;">
-                            <?php echo e($transaction->category->name ?? 'Uncategorized'); ?>
+                        <?php
+                            $categoryName = $transaction->category->name ?? 'Uncategorized';
+                            $bgColor = '#374151'; // Default dark gray
+                            $textColor = '#9ca3af'; // Muted gray text
+                            
+                            // Income categories - colored
+                            if ($categoryName === 'Salary') {
+                                $bgColor = '#10b981';
+                                $textColor = '#ffffff';
+                            } elseif ($categoryName === 'Investment') {
+                                $bgColor = '#8b5cf6';
+                                $textColor = '#ffffff';
+                            } elseif ($categoryName === 'Freelance') {
+                                $bgColor = '#3b82f6';
+                                $textColor = '#ffffff';
+                            }
+                            // Expense categories - colored
+                            elseif ($categoryName === 'Education') {
+                                $bgColor = '#06b6d4';
+                                $textColor = '#ffffff';
+                            } elseif ($categoryName === 'Housing') {
+                                $bgColor = '#ef4444';
+                                $textColor = '#ffffff';
+                            } elseif ($categoryName === 'Transportation') {
+                                $bgColor = '#f59e0b';
+                                $textColor = '#ffffff';
+                            }
+                        ?>
+                        <span style="background:<?php echo e($bgColor); ?>;padding:6px 16px;border-radius:18px;font-size:13px;color:<?php echo e($textColor); ?>;font-weight:400;">
+                            <?php echo e($categoryName); ?>
 
                         </span>
                     </td>
@@ -75,15 +103,73 @@
             data: {
                 labels: monthlyData.months,
                 datasets: [
-                    { label: 'Income', data: monthlyData.income, borderColor: '#34d399', tension: 0.3 },
-                    { label: 'Expenses', data: monthlyData.expenses, borderColor: '#f87171', tension: 0.3 },
+                    { 
+                        label: 'Income', 
+                        data: monthlyData.income, 
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#10b981',
+                        pointBorderColor: '#10b981',
+                        pointHoverRadius: 7
+                    },
+                    { 
+                        label: 'Expenses', 
+                        data: monthlyData.expenses, 
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 5,
+                        pointBackgroundColor: '#ef4444',
+                        pointBorderColor: '#ef4444',
+                        pointHoverRadius: 7
+                    },
                 ]
             },
             options: {
-                plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { 
+                    legend: { 
+                        display: true,
+                        position: 'top',
+                        labels: { 
+                            color: '#e2e8f0',
+                            font: { size: 14, weight: '500' },
+                            padding: 15,
+                            usePointStyle: true,
+                            pointStyle: 'rect'
+                        } 
+                    },
+                    tooltip: {
+                        backgroundColor: '#1e293b',
+                        titleColor: '#e2e8f0',
+                        bodyColor: '#e2e8f0',
+                        borderColor: '#334155',
+                        borderWidth: 1,
+                        padding: 12,
+                        displayColors: true
+                    }
+                },
                 scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: '#243043' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: '#243043' } },
+                    x: { 
+                        ticks: { color: '#94a3b8', font: { size: 12 } }, 
+                        grid: { color: '#2d3748', drawBorder: false }
+                    },
+                    y: { 
+                        ticks: { color: '#94a3b8', font: { size: 12 } }, 
+                        grid: { color: '#2d3748', drawBorder: false },
+                        beginAtZero: true
+                    },
+                },
+                interaction: {
+                    mode: 'index',
+                    intersect: false
                 }
             }
         });

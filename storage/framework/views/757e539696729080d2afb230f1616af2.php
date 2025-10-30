@@ -28,16 +28,33 @@
 </section>
 
 <section class="card card-pad stack-section">
-	<div class="muted" style="margin-bottom:8px;">Filters & Search</div>
-	<div style="display:flex;gap:10px;flex-wrap:wrap;">
-		<input placeholder="Search transactions..." style="background:#0b1220;border:1px solid #334155;border-radius:8px;padding:10px 12px;flex:1;min-width:240px;color:#e2e8f0;">
-		<select style="background:#0b1220;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;">
-			<option>All Types</option>
-		</select>
-		<select style="background:#0b1220;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;">
-			<option>All Categories</option>
-		</select>
-		<button class="card" style="padding:10px 12px;">Clear Filters</button>
+	<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V17L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span style="font-weight:600;font-size:16px;">Filters & Search</span>
+	</div>
+
+	<div style="display:flex;align-items:center;gap:12px;">
+        <div style="position:relative;flex:1;max-width:350px;">
+            <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#64748b;" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input id="searchInput" onkeyup="filterTransactions()" placeholder="Search transactions..." style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px 10px 38px;width:100%;color:#e2e8f0;">
+        </div>
+        <select id="typeFilter" onchange="filterTransactions()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;min-width:260px;max-width:320px;font-size:15px;">
+            <option value="">All Types</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+        </select>
+        <select id="categoryFilter" onchange="filterTransactions()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;min-width:260px;max-width:320px;font-size:15px;">
+            <option value="">All Categories</option>
+            <?php $__currentLoopData = $categories->flatten(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        </select>
+    <button onclick="clearFilters()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;cursor:pointer;font-size:15px;white-space:nowrap;margin-left:auto;margin-right:32px;">Clear Filters</button>
 	</div>
 </section>
 
@@ -55,12 +72,40 @@
 			</thead>
 			<tbody>
 				<?php $__empty_1 = true; $__currentLoopData = $transactions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $transaction): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-				<tr style="border-bottom:1px solid #1e293b;">
+				<tr style="border-bottom:1px solid #1e293b;" data-category-id="<?php echo e($transaction->category_id); ?>" data-type="<?php echo e($transaction->type); ?>">
 					<td style="padding:14px 8px;color:#cbd5e1;"><?php echo e($transaction->transaction_date->format('M d, Y')); ?></td>
-					<td style="padding:14px 8px;"><?php echo e($transaction->description); ?></td>
+					<td style="padding:14px 8px;" class="transaction-description"><?php echo e($transaction->description); ?></td>
 					<td style="padding:14px 8px;">
-						<span style="background:#1e293b;padding:4px 10px;border-radius:6px;font-size:12px;">
-							<?php echo e($transaction->category->name ?? 'Uncategorized'); ?>
+						<?php
+							$categoryName = $transaction->category->name ?? 'Uncategorized';
+							$bgColor = '#374151'; // Default dark gray
+							$textColor = '#9ca3af'; // Muted gray text
+							
+							// Income categories - colored
+							if ($categoryName === 'Salary') {
+								$bgColor = '#10b981';
+								$textColor = '#ffffff';
+							} elseif ($categoryName === 'Investment') {
+								$bgColor = '#8b5cf6';
+								$textColor = '#ffffff';
+							} elseif ($categoryName === 'Freelance') {
+								$bgColor = '#3b82f6';
+								$textColor = '#ffffff';
+							}
+							// Expense categories - colored
+							elseif ($categoryName === 'Education') {
+								$bgColor = '#06b6d4';
+								$textColor = '#ffffff';
+							} elseif ($categoryName === 'Housing') {
+								$bgColor = '#ef4444';
+								$textColor = '#ffffff';
+							} elseif ($categoryName === 'Transportation') {
+								$bgColor = '#f59e0b';
+								$textColor = '#ffffff';
+							}
+						?>
+						<span style="background:<?php echo e($bgColor); ?>;padding:6px 16px;border-radius:18px;font-size:13px;color:<?php echo e($textColor); ?>;font-weight:400;">
+							<?php echo e($categoryName); ?>
 
 						</span>
 					</td>
@@ -261,10 +306,9 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // After a successful add, send user to the Dashboard
-                // so the summary cards reflect immediately.
+                // Reload the transactions page to show the new transaction
                 closeTransactionModal();
-                window.location.href = "<?php echo e(route('dashboard')); ?>";
+                window.location.reload();
             } else {
                 alert('Error adding transaction. Please try again.');
                 submitBtn.disabled = false;
@@ -277,6 +321,47 @@
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalContent;
         });
+    }
+
+    // Filter transactions
+    function filterTransactions() {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const typeValue = document.getElementById('typeFilter').value.toLowerCase();
+        const categoryValue = document.getElementById('categoryFilter').value;
+        
+        const rows = document.querySelectorAll('.card tbody tr');
+        
+        rows.forEach(row => {
+            // Skip the empty state row
+            if (!row.hasAttribute('data-type')) {
+                return;
+            }
+            
+            // Get row data
+            const description = row.querySelector('.transaction-description')?.textContent.toLowerCase() || '';
+            const type = row.getAttribute('data-type')?.toLowerCase() || '';
+            const categoryId = row.getAttribute('data-category-id') || '';
+            
+            // Check all filter conditions
+            const matchesSearch = description.includes(searchValue);
+            const matchesType = typeValue === '' || type === typeValue;
+            const matchesCategory = categoryValue === '' || categoryId === categoryValue;
+            
+            // Show/hide row based on filters
+            if (matchesSearch && matchesType && matchesCategory) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Clear all filters
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('typeFilter').value = '';
+        document.getElementById('categoryFilter').value = '';
+        filterTransactions(); // Reset display
     }
 
     // Close modal on overlay click

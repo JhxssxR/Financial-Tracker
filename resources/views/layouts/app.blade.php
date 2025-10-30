@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PF Trackers</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2310b981'/%3E%3Ctext x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306251d' font-family='Arial'%3E¥%3C/text%3E%3C/svg%3E">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,9 +19,10 @@
         .brand { color: #34d399; }
         .danger { color: #f87171; }
         .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-        .nav { background-color: #0b1220; border-bottom: 1px solid #243043; }
-        .nav a { color: #cbd5e1; text-decoration: none; padding: 10px 14px; border-radius: 8px; }
-        .nav a.active, .nav a:hover { background-color: #1f2937; color: #fff; }
+        .nav { background-color: #1e293b; border-bottom: 1px solid #334155; padding: 6px 0; }
+        .nav a { color: #cbd5e1; text-decoration: none; padding: 10px 18px; border-radius: 10px; font-weight: 500; transition: all 0.2s; }
+        .nav a:hover { color: #fff; }
+        .nav a.active { color: #10b981; font-weight: 600; }
 
         /* Page spacing utilities */
         .page-header { display:flex; align-items:center; gap:12px; margin: 8px 0 16px; }
