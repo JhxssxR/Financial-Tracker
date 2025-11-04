@@ -50,7 +50,7 @@
         </select>
         <select id="categoryFilter" onchange="filterTransactions()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;min-width:260px;max-width:320px;font-size:15px;">
             <option value="">All Categories</option>
-            <?php $__currentLoopData = $categories->flatten(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php $__currentLoopData = $categories->flatten()->unique('name'); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </select>
@@ -221,9 +221,16 @@
     function updateCategories() {
         const select = document.getElementById('categorySelect');
         select.innerHTML = '<option value="">Select a category...</option>';
-        
+
         const typeCategories = categoriesData[currentType] || [];
+        const seenNames = new Set();
         typeCategories.forEach(cat => {
+            if (!cat || typeof cat.id === 'undefined') return;
+            const nameKey = (cat.name || '').trim().toLowerCase();
+            if (!nameKey) return;
+            if (seenNames.has(nameKey)) return; // skip duplicate names
+            seenNames.add(nameKey);
+
             const option = document.createElement('option');
             option.value = cat.id;
             option.textContent = cat.name;
@@ -289,7 +296,9 @@
             return;
         }
         
-        const formData = new FormData(form);
+    const formData = new FormData(form);
+    // ensure the current type is always submitted
+    formData.set('type', currentType);
         const submitBtn = document.getElementById('submitBtn');
         const originalContent = submitBtn.innerHTML;
         
@@ -306,7 +315,28 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Reload the transactions page to show the new transaction
+                // Write totals to localStorage to notify other pages (dashboard) to update
+                try {
+                    console.log('Transactions: Response data', data);
+                    console.log('Transactions: Writing to localStorage', data.totals);
+                    localStorage.setItem('transactions:latest', JSON.stringify({ ts: Date.now(), totals: data.totals }));
+                    console.log('Transactions: localStorage written successfully');
+                    
+                    // BroadcastChannel for immediate cross-tab updates
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        const bc = new BroadcastChannel('transactions-updates');
+                        console.log('Transactions: Posting to BroadcastChannel', data.totals);
+                        bc.postMessage({ totals: data.totals });
+                        bc.close();
+                        console.log('Transactions: BroadcastChannel message sent');
+                    } else {
+                        console.log('Transactions: BroadcastChannel not supported');
+                    }
+                } catch (e) {
+                    console.error('Transactions: Error broadcasting update', e);
+                }
+
+                // Close modal and reload transactions page
                 closeTransactionModal();
                 window.location.reload();
             } else {

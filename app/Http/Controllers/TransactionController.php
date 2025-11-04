@@ -24,8 +24,10 @@ class TransactionController extends Controller
         $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
         $totalTransactions = $transactions->count();
         
-        // Get categories for the dropdown
-        $categories = Category::all()->groupBy('type');
+        // Get categories for the dropdown and remove duplicate names per type
+        $categories = Category::all()->groupBy('type')->map(function ($group) {
+            return $group->unique('name')->values();
+        });
         
         return view('transactions', compact('transactions', 'totalIncome', 'totalExpenses', 'totalTransactions', 'categories'));
     }
@@ -42,11 +44,31 @@ class TransactionController extends Controller
         
         $validated['user_id'] = Auth::id();
         
-        Transaction::create($validated);
-        
+        $transaction = Transaction::create($validated);
+
+        // Compute year-to-date totals (2025) so UI can be updated live
+        $currentYear = now()->year;
+
+        $totalIncome = Transaction::where('user_id', Auth::id())
+            ->where('type', 'income')
+            ->whereYear('transaction_date', $currentYear)
+            ->sum('amount');
+
+        $totalExpenses = Transaction::where('user_id', Auth::id())
+            ->where('type', 'expense')
+            ->whereYear('transaction_date', $currentYear)
+            ->sum('amount');
+
         return response()->json([
             'success' => true,
-            'message' => 'Transaction added successfully!'
+            'message' => 'Transaction added successfully!',
+            'transaction' => $transaction,
+            'totals' => [
+                'totalIncome' => format_currency($totalIncome),
+                'totalExpenses' => format_currency($totalExpenses),
+                'rawIncome' => (float) $totalIncome,
+                'rawExpenses' => (float) $totalExpenses,
+            ]
         ]);
     }
     

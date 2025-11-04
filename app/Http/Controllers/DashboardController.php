@@ -13,12 +13,10 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Get current month transactions
-        $currentMonth = now()->month;
+        // Get all 2025 transactions (year-to-date)
         $currentYear = now()->year;
         
         $transactions = Transaction::where('user_id', $user->id)
-            ->whereMonth('transaction_date', $currentMonth)
             ->whereYear('transaction_date', $currentYear)
             ->get();
         
@@ -57,20 +55,24 @@ class DashboardController extends Controller
         $incomeData = [];
         $expenseData = [];
         
-        for ($i = 5; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
+        $currentYear = now()->year;
+        $currentMonth = now()->month;
+        
+        // Get all months from January to current month of 2025
+        for ($month = 1; $month <= $currentMonth; $month++) {
+            $date = now()->setMonth($month)->setYear($currentYear);
             $months[] = $date->format('M');
             
             $monthIncome = Transaction::where('user_id', $userId)
                 ->where('type', 'income')
-                ->whereMonth('transaction_date', $date->month)
-                ->whereYear('transaction_date', $date->year)
+                ->whereMonth('transaction_date', $month)
+                ->whereYear('transaction_date', $currentYear)
                 ->sum('amount');
             
             $monthExpense = Transaction::where('user_id', $userId)
                 ->where('type', 'expense')
-                ->whereMonth('transaction_date', $date->month)
-                ->whereYear('transaction_date', $date->year)
+                ->whereMonth('transaction_date', $month)
+                ->whereYear('transaction_date', $currentYear)
                 ->sum('amount');
             
             $incomeData[] = (float)$monthIncome;

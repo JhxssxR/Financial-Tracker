@@ -11,13 +11,13 @@
     </div>
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Income</div>
-        <div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalIncome)); ?></div>
-        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">This month</div>
+        <div id="incomeTotal" class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalIncome)); ?></div>
+        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">Year 2025</div>
     </div>
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Expenses</div>
-        <div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalExpenses)); ?></div>
-        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;"><?php echo e(number_format($expensePercentage, 1)); ?>% of income</div>
+        <div id="expensesTotal" class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalExpenses)); ?></div>
+        <div id="expensesMeta" class="muted" style="font-size:12px;margin-top:4px;text-align:right;"><?php echo e(number_format($expensePercentage, 1)); ?>% of income</div>
     </div>
 </section>
 
@@ -175,6 +175,83 @@
         });
     }
 </script>
+    <script>
+        // helper to apply totals payload to DOM
+        function applyTotalsPayload(t) {
+            try {
+                console.log('Dashboard: Applying totals update', t);
+                const incomeEl = document.getElementById('incomeTotal');
+                const expensesEl = document.getElementById('expensesTotal');
+                const metaEl = document.getElementById('expensesMeta');
+
+                if (incomeEl && Object.prototype.hasOwnProperty.call(t, 'totalIncome')) {
+                    incomeEl.textContent = t.totalIncome;
+                    // Add visual feedback
+                    incomeEl.style.transition = 'all 0.3s ease';
+                    incomeEl.style.transform = 'scale(1.1)';
+                    setTimeout(() => incomeEl.style.transform = 'scale(1)', 300);
+                }
+                if (expensesEl && Object.prototype.hasOwnProperty.call(t, 'totalExpenses')) {
+                    expensesEl.textContent = t.totalExpenses;
+                    // Add visual feedback
+                    expensesEl.style.transition = 'all 0.3s ease';
+                    expensesEl.style.transform = 'scale(1.1)';
+                    setTimeout(() => expensesEl.style.transform = 'scale(1)', 300);
+                }
+                if (metaEl && Object.prototype.hasOwnProperty.call(t, 'rawIncome') && Object.prototype.hasOwnProperty.call(t, 'rawExpenses')) {
+                    const pct = t.rawIncome > 0 ? ((t.rawExpenses / t.rawIncome) * 100).toFixed(1) : '0.0';
+                    metaEl.textContent = `${pct}% of income`;
+                }
+                console.log('Dashboard: Totals updated successfully');
+            } catch (err) {
+                console.error('applyTotalsPayload error', err);
+            }
+        }
+
+        // Read existing localStorage on load to pick up latest totals
+        try {
+            const raw = localStorage.getItem('transactions:latest');
+            console.log('Dashboard: Reading localStorage', raw);
+            if (raw) {
+                const payload = JSON.parse(raw);
+                console.log('Dashboard: Parsed payload', payload);
+                if (payload && payload.totals) {
+                    console.log('Dashboard: Found totals, applying...');
+                    applyTotalsPayload(payload.totals);
+                }
+            }
+        } catch (err) {
+            console.error('Dashboard: localStorage read error', err);
+        }
+
+        // Listen for transactions updates written to localStorage by the transactions page
+        window.addEventListener('storage', (e) => {
+            console.log('Dashboard: storage event received', e.key, e.newValue);
+            if (e.key !== 'transactions:latest') return;
+            try {
+                const payload = JSON.parse(e.newValue || e.oldValue || '{}');
+                console.log('Dashboard: storage payload', payload);
+                if (!payload.totals) return;
+                applyTotalsPayload(payload.totals);
+            } catch (err) {
+                console.error('Error parsing transactions:latest payload', err);
+            }
+        });
+
+        // BroadcastChannel for immediate cross-tab updates (faster than storage event)
+        if (typeof BroadcastChannel !== 'undefined') {
+            const bc = new BroadcastChannel('transactions-updates');
+            bc.onmessage = (ev) => {
+                console.log('Dashboard: BroadcastChannel message received', ev.data);
+                if (ev.data && ev.data.totals) {
+                    applyTotalsPayload(ev.data.totals);
+                }
+            };
+            console.log('Dashboard: BroadcastChannel listener active');
+        } else {
+            console.log('Dashboard: BroadcastChannel not supported');
+        }
+    </script>
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 
