@@ -21,6 +21,33 @@
         <div style="grid-column: 1 / -1;">
             <h2 style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
             
+            <?php $__empty_1 = true; $__currentLoopData = $notifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+            <div class="card" style="padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;<?php echo e($notification->is_read ? 'opacity:0.7;' : ''); ?>">
+                <div style="width:48px;height:48px;background:<?php echo e($notification->type === 'savings' ? '#059669' : ($notification->type === 'budget' ? '#3b82f6' : '#8b5cf6')); ?>;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <?php if($notification->type === 'savings'): ?>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v4m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <?php elseif($notification->type === 'budget'): ?>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <?php else: ?>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <?php endif; ?>
+                </div>
+                <div style="flex:1;">
+                    <h3 style="font-size:16px;font-weight:600;margin:0 0 4px;color:#e2e8f0;"><?php echo e($notification->title); ?></h3>
+                    <p style="font-size:14px;margin:0;color:#94a3b8;"><?php echo e($notification->message); ?></p>
+                    <p style="font-size:12px;margin:6px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
+                </div>
+                <?php if(!$notification->is_read): ?>
+                <div style="width:8px;height:8px;background:#3b82f6;border-radius:50%;flex-shrink:0;"></div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <!-- Empty State -->
             <div class="card" style="padding:200px 80px;text-align:center;">
                 <div style="display:inline-flex;width:80px;height:80px;background:#1a2b3a;border-radius:50%;align-items:center;justify-content:center;margin:0 auto 20px;">
@@ -30,6 +57,7 @@
                 </div>
                 <p class="muted" style="margin:0;font-size:16px;">No notifications to display</p>
             </div>
+            <?php endif; ?>
         </div>
 
        

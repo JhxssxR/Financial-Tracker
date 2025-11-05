@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::get('/savings', [SavingsController::class, 'index'])->name('savings.index');
+    Route::post('/savings/deposit', [SavingsController::class, 'deposit'])->name('savings.deposit');
+    Route::post('/savings/withdraw', [SavingsController::class, 'withdraw'])->name('savings.withdraw');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('settings.currency');
