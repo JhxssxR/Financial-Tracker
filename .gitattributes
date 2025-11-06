@@ -10,6 +10,15 @@
 *.php linguist-language=PHP
 *.blade.php linguist-language=Blade
 
+# Exclude vendor and framework files from language stats (makes Blade more prominent)
+vendor/* linguist-vendored
+storage/framework/views/*.php linguist-generated
+bootstrap/cache/*.php linguist-generated
+
+# Include JavaScript files in language stats
+*.js linguist-detectable=true
+resources/js/*.js linguist-detectable=true
+
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
