@@ -31,7 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::post('/transactions', [TransactionController::class, 'store'])->name('transactions.store');
     Route::delete('/transactions/{id}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+    Route::get('/transactions/export-pdf', [TransactionController::class, 'exportPdf'])->name('transactions.export');
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::put('/budgets/{id}', [BudgetController::class, 'update'])->name('budgets.update');
+    Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
     Route::get('/savings', [SavingsController::class, 'index'])->name('savings.index');
     Route::post('/savings/deposit', [SavingsController::class, 'deposit'])->name('savings.deposit');
     Route::post('/savings/withdraw', [SavingsController::class, 'withdraw'])->name('savings.withdraw');

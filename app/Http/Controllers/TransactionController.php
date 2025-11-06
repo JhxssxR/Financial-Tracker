@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
+use PDF;
 
 class TransactionController extends Controller
 {
@@ -81,5 +82,48 @@ class TransactionController extends Controller
             'success' => true,
             'message' => 'Transaction deleted successfully!'
         ]);
+    }
+    
+    public function exportPdf()
+    {
+        $user = Auth::user()->fresh();
+        
+        // Get all transactions for the current user
+        $transactions = Transaction::where('user_id', $user->id)
+            ->with('category')
+            ->orderBy('transaction_date', 'desc')
+            ->get();
+        
+        // Calculate totals
+        $totalIncome = $transactions->where('type', 'income')->sum('amount');
+        $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
+        $totalTransactions = $transactions->count();
+        
+        // Group transactions by type
+        $incomeTransactions = $transactions->where('type', 'income')->values();
+        $expenseTransactions = $transactions->where('type', 'expense')->values();
+        
+        $data = [
+            'user' => $user,
+            'currencySymbol' => $user->currency_symbol ?? '€',
+            'currencyCode' => $user->currency_code ?? 'EUR',
+            'transactions' => $transactions,
+            'incomeTransactions' => $incomeTransactions,
+            'expenseTransactions' => $expenseTransactions,
+            'totalIncome' => $totalIncome,
+            'totalExpenses' => $totalExpenses,
+            'totalTransactions' => $totalTransactions,
+            'generatedDate' => now()->format('F d, Y'),
+        ];
+        
+        $pdf = PDF::loadView('transactions-pdf', $data)
+            ->setPaper('a5', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'sans-serif'
+            ]);
+        
+        return $pdf->download('transactions-' . now()->format('Y-m-d') . '.pdf');
     }
 }

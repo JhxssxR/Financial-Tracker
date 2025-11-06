@@ -2,10 +2,117 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use App\Models\Budget;
+use App\Models\Transaction;
+use App\Models\Category;
+use Illuminate\Support\Facades\Auth;
+
 class BudgetController extends Controller
 {
     public function index()
     {
-        return view('budgets');
+        $user = Auth::user();
+        
+        // Get all budgets for the current user with category relationship
+        $budgets = Budget::where('user_id', $user->id)
+            ->with('category')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Calculate spent for each budget from transactions
+        foreach ($budgets as $budget) {
+            // Calculate actual spent from transactions
+            $budget->spent = Transaction::where('user_id', $user->id)
+                ->where('category_id', $budget->category_id)
+                ->where('type', 'expense')
+                ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
+                ->sum('amount');
+            
+            // Calculate percentage for progress bar
+            $budget->percentage = $budget->amount > 0 
+                ? ($budget->spent / $budget->amount) * 100 
+                : 0;
+            
+            // Calculate remaining amount
+            $budget->remaining = $budget->amount - $budget->spent;
+            
+            // Calculate days remaining in budget period
+            $budget->days_remaining = max(0, now()->diffInDays($budget->end_date, false));
+        }
+        
+        // Calculate summary totals
+        $totalBudgeted = $budgets->sum('amount');
+        $totalSpent = $budgets->sum('spent');
+        $totalRemaining = $totalBudgeted - $totalSpent;
+        $spentPercentage = $totalBudgeted > 0 ? ($totalSpent / $totalBudgeted) * 100 : 0;
+        
+        // Get categories for dropdown (expense categories only)
+        $categories = Category::where('type', 'expense')->get();
+        
+        return view('budgets', compact(
+            'budgets',
+            'totalBudgeted',
+            'totalSpent',
+            'totalRemaining',
+            'spentPercentage',
+            'categories'
+        ));
+    }
+    
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'period' => 'required|in:monthly,weekly,yearly',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+        
+        $validated['user_id'] = Auth::id();
+        $validated['spent'] = 0;
+        
+        $budget = Budget::create($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Budget created successfully!',
+            'budget' => $budget
+        ]);
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        
+        $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
+            'name' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'period' => 'required|in:monthly,weekly,yearly',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+        
+        $budget->update($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Budget updated successfully!',
+            'budget' => $budget
+        ]);
+    }
+    
+    public function destroy($id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        $budget->delete();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Budget deleted successfully!'
+        ]);
     }
 }

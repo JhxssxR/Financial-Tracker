@@ -4,12 +4,12 @@
 <div class="page-header" style="display:flex;align-items:center;gap:12px;">
     <h1 style="font-size:28px;font-weight:700;">Transactions</h1>
     <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="card" style="padding:8px 12px;background:#0e7d57;border-color:#0e7d57;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <a href="{{ route('transactions.export') }}" class="card" style="padding:8px 12px;background:#0e7d57;border-color:#0e7d57;cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;color:white;transition:all .2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#0e7d57'">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5m0 0l5-5m-5 5V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             Export
-        </button>
+        </a>
         <button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;cursor:pointer;" onclick="openTransactionModal()">+ Add Transaction</button>
     </div>
  </div><section class="page-grid-3">
