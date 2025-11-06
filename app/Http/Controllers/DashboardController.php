@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Models\Saving;
+use App\Models\SavingsTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,15 @@ class DashboardController extends Controller
         
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
         $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
-        $totalSavings = Saving::where('user_id', $user->id)->sum('current_amount');
+        
+        // Calculate total savings from SavingsTransaction (deposits - withdrawals)
+        $totalDeposits = SavingsTransaction::where('user_id', $user->id)
+            ->where('type', 'deposit')
+            ->sum('amount');
+        $totalWithdrawals = SavingsTransaction::where('user_id', $user->id)
+            ->where('type', 'withdraw')
+            ->sum('amount');
+        $totalSavings = $totalDeposits - $totalWithdrawals;
         
         // Calculate percentages
         $savingsPercentage = $totalIncome > 0 ? ($totalSavings / $totalIncome) * 100 : 0;

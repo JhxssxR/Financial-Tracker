@@ -111,10 +111,18 @@
                 <a class="<?php echo e(request()->routeIs('reports.*') ? 'active' : ''); ?>" href="<?php echo e(route('reports.index', ['cb' => now()->timestamp])); ?>">Reports</a>
             </nav>
             <div style="margin-left:auto;display:flex;align-items:center;gap:16px;">
-                <a href="<?php echo e(route('notifications.index')); ?>" style="background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
+                <a href="<?php echo e(route('notifications.index')); ?>" style="position:relative;background:transparent;border:none;padding:6px;cursor:pointer;display:grid;place-items:center;border-radius:6px;transition:background .2s;text-decoration:none;" onmouseover="this.style.background='#1f2937'" onmouseout="this.style.background='transparent'" title="Notifications">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
+                    <?php
+                        $unreadCount = Auth::check() ? \App\Models\Notification::where('user_id', Auth::id())->where('is_read', false)->count() : 0;
+                    ?>
+                    <?php if($unreadCount > 0): ?>
+                    <span id="nav-notif-count" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;border:2px solid #1e293b;"><?php echo e($unreadCount); ?></span>
+                    <?php else: ?>
+                    <span id="nav-notif-count" style="position:absolute;top:-2px;right:-2px;background:#ef4444;color:white;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 5px;border:2px solid #1e293b;"></span>
+                    <?php endif; ?>
                 </a>
                 <?php if(auth()->guard()->check()): ?>
                 <div style="position:relative;" id="user-menu">

@@ -36,10 +36,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/savings/deposit', [SavingsController::class, 'deposit'])->name('savings.deposit');
     Route::post('/savings/withdraw', [SavingsController::class, 'withdraw'])->name('savings.withdraw');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('settings.currency');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     
     // Debug route
     Route::get('/test-currency', function() {

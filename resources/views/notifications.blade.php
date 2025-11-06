@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- Toast Container -->
+<div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:12px;"></div>
+
 <div style="max-width:1400px;margin:0 auto;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
@@ -22,11 +25,11 @@
             <h2 style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
             
             @forelse($notifications as $notification)
-            <div class="card" style="padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;{{ $notification->is_read ? 'opacity:0.7;' : '' }}">
+            <div class="card notif-item" data-id="{{ $notification->id }}" style="padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;{{ $notification->is_read ? 'opacity:0.5;' : 'opacity:1;' }}">
                 <div style="width:48px;height:48px;background:{{ $notification->type === 'savings' ? '#059669' : ($notification->type === 'budget' ? '#3b82f6' : '#8b5cf6') }};border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     @if($notification->type === 'savings')
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v4m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     @elseif($notification->type === 'budget')
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,9 +46,23 @@
                     <p style="font-size:14px;margin:0;color:#94a3b8;">{{ $notification->message }}</p>
                     <p style="font-size:12px;margin:6px 0 0;color:#64748b;">{{ $notification->created_at->diffForHumans() }}</p>
                 </div>
-                @if(!$notification->is_read)
-                <div style="width:8px;height:8px;background:#3b82f6;border-radius:50%;flex-shrink:0;"></div>
-                @endif
+                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+                    @if(!$notification->is_read)
+                    <div class="unread-dot" style="width:8px;height:8px;background:#3b82f6;border-radius:50%;flex-shrink:0;"></div>
+                    @endif
+
+                    {{-- action buttons: mark as read (check) and dismiss (x) --}}
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        @if(!$notification->is_read)
+                        <button class="notif-action" data-action="read" data-id="{{ $notification->id }}" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#94a3b8;transition:all .2s;" onmouseover="this.style.background='#334155';this.style.color='#10b981'" onmouseout="this.style.background='transparent';this.style.color='#94a3b8'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                        @endif
+                        <button class="notif-action" data-action="delete" data-id="{{ $notification->id }}" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#f87171;transition:all .2s;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+                </div>
             </div>
             @empty
             <!-- Empty State -->
@@ -84,6 +101,138 @@
         updateToggle();
         checkbox.addEventListener('change', updateToggle);
     });
+
+    // Toast notification system
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        const bgColor = type === 'success' ? '#059669' : '#dc2626';
+        const icon = type === 'success' 
+            ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+            : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        
+        toast.style.cssText = `
+            background: ${bgColor};
+            color: white;
+            padding: 14px 18px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+            min-width: 280px;
+            max-width: 400px;
+        `;
+        toast.innerHTML = `
+            <div style="flex-shrink:0;">${icon}</div>
+            <div style="flex:1;font-size:14px;font-weight:500;">${message}</div>
+        `;
+
+        container.appendChild(toast);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // Add animation styles
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Notification action handlers (mark as read / dismiss)
+    (function() {
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrf = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+
+        function updateNavBadge(decrementBy = 1) {
+            const el = document.getElementById('nav-notif-count');
+            if (!el) return;
+            const current = parseInt(el.textContent || '0', 10) || 0;
+            const next = Math.max(0, current - decrementBy);
+            el.textContent = next > 0 ? next : '';
+            if (next === 0) {
+                el.style.display = 'none';
+            }
+        }
+
+        async function sendRequest(url, method = 'POST') {
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrf,
+                }
+            });
+            if (!res.ok) throw new Error('Request failed');
+            return res.json();
+        }
+
+        // Confirmation dialog
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this notification? This action cannot be undone.');
+        }
+
+        document.querySelectorAll('.notif-action').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const action = btn.getAttribute('data-action');
+                const id = btn.getAttribute('data-id');
+                if (!id) return;
+
+                try {
+                    if (action === 'read') {
+                        const url = `/notifications/${id}/read`;
+                        await sendRequest(url, 'POST');
+                        // Mark notification as read (change opacity and remove unread dot)
+                        const item = document.querySelector(`.notif-item[data-id='${id}']`);
+                        if (item) {
+                            item.style.opacity = '0.5';
+                            const unreadDot = item.querySelector('.unread-dot');
+                            if (unreadDot) unreadDot.remove();
+                            // Hide the check button after marking as read
+                            const checkBtn = item.querySelector('.notif-action[data-action="read"]');
+                            if (checkBtn) checkBtn.style.display = 'none';
+                        }
+                        updateNavBadge(1);
+                        showToast('Notification marked as read', 'success');
+                    }
+
+                    if (action === 'delete') {
+                        // Show confirmation dialog
+                        if (!confirmDelete()) {
+                            return; // User cancelled
+                        }
+
+                        const url = `/notifications/${id}`;
+                        await sendRequest(url, 'DELETE');
+                        const item = document.querySelector(`.notif-item[data-id='${id}']`);
+                        if (item) item.remove();
+                        updateNavBadge(1);
+                        showToast('Notification deleted successfully', 'success');
+                    }
+                } catch (err) {
+                    console.error('Notification action failed', err);
+                    showToast('Failed to process notification. Please try again.', 'error');
+                }
+            });
+        });
+    })();
 </script>
 @endpush
 @endsection
