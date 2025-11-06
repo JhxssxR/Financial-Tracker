@@ -127,61 +127,93 @@
 
 <!-- Budget Modal -->
 <div id="budgetModal" class="modal-overlay">
-	<div class="modal-container" style="max-width:500px;">
-		<div class="modal-header">
-			<h2 id="modalTitle">Create Budget</h2>
-			<button class="modal-close" onclick="closeBudgetModal()">×</button>
+	<div class="modal-container" style="max-width:540px; background:#1e293b; border-radius:16px; padding:0;">
+		<!-- Modal Header -->
+		<div style="display:flex; align-items:center; gap:16px; padding:24px; border-bottom:1px solid #334155;">
+			<div style="width:56px; height:56px; background:#059669; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+				<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+					<circle cx="12" cy="12" r="6" stroke="white" stroke-width="2"/>
+					<circle cx="12" cy="12" r="2" fill="white"/>
+				</svg>
+			</div>
+			<h2 id="modalTitle" style="font-size:24px; font-weight:700; margin:0; color:#f1f5f9;">Create New Budget</h2>
+			<button onclick="closeBudgetModal()" style="margin-left:auto; background:transparent; border:none; color:#94a3b8; font-size:32px; cursor:pointer; padding:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center; transition:color 0.2s;" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">×</button>
 		</div>
-		<div class="modal-body">
+		
+		<!-- Modal Body -->
+		<div style="padding:24px;">
 			<form id="budgetForm" action="{{ route('budgets.store') }}" method="POST">
 				@csrf
 				<input type="hidden" id="budgetId" name="budget_id">
 				<input type="hidden" id="budgetMethod" name="_method" value="POST">
 				
-				<div class="form-group">
-					<label class="form-label">Budget Name</label>
-					<input class="form-input" id="budgetName" name="name" type="text" placeholder="e.g., Monthly Groceries" required />
-				</div>
-				
-				<div class="form-group">
-					<label class="form-label">Category</label>
-					<select class="form-input" id="budgetCategory" name="category_id" required>
-						<option value="">Select a category...</option>
+				<!-- Budget Category -->
+				<div style="margin-bottom:24px;">
+					<label style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:#10b981; margin-bottom:12px;">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						Budget Category
+					</label>
+					<select id="budgetCategory" name="category_id" required style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:14px 16px; color:#e2e8f0; font-size:15px; cursor:pointer; transition:border-color 0.2s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#334155'">
+						<option value="" style="color:#64748b;">Select a category...</option>
 						@foreach($categories as $category)
 							<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
 						@endforeach
 					</select>
 				</div>
 				
-				<div class="form-group">
-					<label class="form-label">Budget Amount</label>
-					<input class="form-input" id="budgetAmount" name="amount" type="number" step="0.01" min="0.01" placeholder="0.00" required />
+				<!-- Budget Amount -->
+				<div style="margin-bottom:24px;">
+					<label style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:#10b981; margin-bottom:12px;">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+						Budget Amount
+					</label>
+					<div style="position:relative;">
+						<span style="position:absolute; left:16px; top:50%; transform:translateY(-50%); color:#64748b; font-size:16px;">$</span>
+						<input id="budgetAmount" name="amount" type="number" step="0.01" min="0.01" placeholder="0.00" required style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:14px 16px 14px 32px; color:#e2e8f0; font-size:15px; transition:border-color 0.2s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#334155'" />
+					</div>
+					<div style="margin-top:8px; font-size:13px; color:#64748b;">Enter the maximum amount you want to spend in this category</div>
 				</div>
 				
-				<div class="form-group">
-					<label class="form-label">Period</label>
-					<select class="form-input" id="budgetPeriod" name="period" onchange="updateDateRange()" required>
+				<!-- Budget Period -->
+				<div style="margin-bottom:24px;">
+					<label style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; color:#10b981; margin-bottom:12px;">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+							<path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+						</svg>
+						Budget Period
+					</label>
+					<select id="budgetPeriod" name="period" onchange="updateDateRange()" required style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:14px 16px; color:#e2e8f0; font-size:15px; cursor:pointer; transition:border-color 0.2s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#334155'">
 						<option value="monthly">Monthly</option>
 						<option value="weekly">Weekly</option>
 						<option value="yearly">Yearly</option>
 					</select>
+					<div style="margin-top:8px; font-size:13px; color:#64748b;">How often does this budget reset?</div>
 				</div>
 				
-				<div class="form-row" style="display:flex; gap:12px;">
-					<div class="form-group" style="flex:1;">
-						<label class="form-label">Start Date</label>
-						<input class="form-input" id="budgetStartDate" name="start_date" type="date" required />
-					</div>
-					<div class="form-group" style="flex:1;">
-						<label class="form-label">End Date</label>
-						<input class="form-input" id="budgetEndDate" name="end_date" type="date" required />
-					</div>
-				</div>
+				<!-- Hidden Name Field (auto-generated from category) -->
+				<input type="hidden" id="budgetName" name="name" value="Budget">
+				<input type="hidden" id="budgetStartDate" name="start_date">
+				<input type="hidden" id="budgetEndDate" name="end_date">
 			</form>
 		</div>
-		<div class="modal-footer">
-			<button class="btn btn-cancel" onclick="closeBudgetModal()">Cancel</button>
-			<button class="btn btn-primary" id="submitBudgetBtn" onclick="submitBudget()">
+		
+		<!-- Modal Footer -->
+		<div style="display:flex; gap:12px; padding:20px 24px; border-top:1px solid #334155;">
+			<button onclick="closeBudgetModal()" style="flex:1; padding:14px 24px; background:#0f172a; border:1px solid #334155; border-radius:12px; color:#e2e8f0; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">
+				Cancel
+			</button>
+			<button id="submitBudgetBtn" onclick="submitBudget()" style="flex:2; padding:14px 24px; background:#059669; border:none; border-radius:12px; color:white; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
+					<circle cx="12" cy="12" r="6" stroke="white" stroke-width="2"/>
+					<circle cx="12" cy="12" r="2" fill="white"/>
+				</svg>
 				Create Budget
 			</button>
 		</div>
@@ -219,8 +251,9 @@
 	function openBudgetModal() {
 		isEditMode = false;
 		currentBudgetId = null;
-		document.getElementById('modalTitle').textContent = 'Create Budget';
-		document.getElementById('submitBudgetBtn').textContent = 'Create Budget';
+		document.getElementById('modalTitle').textContent = 'Create New Budget';
+		const submitBtn = document.getElementById('submitBudgetBtn');
+		submitBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="6" stroke="white" stroke-width="2"/><circle cx="12" cy="12" r="2" fill="white"/></svg> Create Budget';
 		document.getElementById('budgetForm').reset();
 		document.getElementById('budgetMethod').value = 'POST';
 		document.getElementById('budgetForm').action = '{{ route("budgets.store") }}';
@@ -269,12 +302,19 @@
 			return;
 		}
 		
+		// Auto-generate budget name from category and period
+		const categorySelect = document.getElementById('budgetCategory');
+		const categoryText = categorySelect.options[categorySelect.selectedIndex].text;
+		const period = document.getElementById('budgetPeriod').value;
+		const periodText = period.charAt(0).toUpperCase() + period.slice(1);
+		document.getElementById('budgetName').value = `${periodText} ${categoryText}`;
+		
 		const formData = new FormData(form);
 		const submitBtn = document.getElementById('submitBudgetBtn');
-		const originalText = submitBtn.textContent;
+		const originalHTML = submitBtn.innerHTML;
 		
 		submitBtn.disabled = true;
-		submitBtn.textContent = 'Saving...';
+		submitBtn.innerHTML = 'Saving...';
 		
 		fetch(form.action, {
 			method: 'POST',
@@ -291,14 +331,14 @@
 			} else {
 				alert('Error saving budget. Please try again.');
 				submitBtn.disabled = false;
-				submitBtn.textContent = originalText;
+				submitBtn.innerHTML = originalHTML;
 			}
 		})
 		.catch(error => {
 			console.error('Error:', error);
 			alert('Error saving budget. Please try again.');
 			submitBtn.disabled = false;
-			submitBtn.textContent = originalText;
+			submitBtn.innerHTML = originalHTML;
 		});
 	}
 
