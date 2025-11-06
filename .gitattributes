@@ -6,6 +6,10 @@
 *.md diff=markdown
 *.php diff=php
 
+# Force GitHub to detect PHP files correctly (not as Hack)
+*.php linguist-language=PHP
+*.blade.php linguist-language=Blade
+
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
