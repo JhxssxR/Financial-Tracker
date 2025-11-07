@@ -40,10 +40,19 @@ class SettingsController extends Controller
         $currencyCode = $request->currency_code;
         $currencySymbol = $currencies[$currencyCode];
 
-        Auth::user()->update([
-            'currency_code' => $currencyCode,
-            'currency_symbol' => $currencySymbol,
-        ]);
+        $user = Auth::user();
+        
+        // Update the user in the database
+        $user->currency_code = $currencyCode;
+        $user->currency_symbol = $currencySymbol;
+        $user->save();
+
+        // Force refresh the user instance in the session
+        Auth::setUser($user->fresh());
+        
+        // Also regenerate the session to ensure changes are persisted
+        $request->session()->put('_flash.old', []);
+        $request->session()->regenerate(false);
 
         return response()->json([
             'success' => true,

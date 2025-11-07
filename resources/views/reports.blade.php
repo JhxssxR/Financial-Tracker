@@ -28,19 +28,19 @@
 <section style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Transactions</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ $totalTransactions ?? 0 }}</div>
+		<div id="reportTotalTransactions" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ $totalTransactions ?? 0 }}</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Income</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalIncome ?? 0) }}</div>
+		<div id="reportTotalIncome" class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalIncome ?? 0) }}</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Savings</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalSavings ?? 0) }}</div>
+		<div id="reportTotalSavings" class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalSavings ?? 0) }}</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Expenses</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalExpenses ?? 0) }}</div>
+		<div id="reportTotalExpenses" class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalExpenses ?? 0) }}</div>
 	</div>
 </section>
 
@@ -144,6 +144,38 @@
 			});
 		}
 	}
+
+	// Page load animation for summary cards
+	document.addEventListener('DOMContentLoaded', function() {
+		const reportTotalTransactionsEl = document.getElementById('reportTotalTransactions');
+		const reportTotalIncomeEl = document.getElementById('reportTotalIncome');
+		const reportTotalSavingsEl = document.getElementById('reportTotalSavings');
+		const reportTotalExpensesEl = document.getElementById('reportTotalExpenses');
+		
+		// Animate on page load
+		setTimeout(() => {
+			if (reportTotalTransactionsEl) {
+				reportTotalTransactionsEl.style.transition = 'all 0.3s ease';
+				reportTotalTransactionsEl.style.transform = 'scale(1.1)';
+				setTimeout(() => reportTotalTransactionsEl.style.transform = 'scale(1)', 300);
+			}
+			if (reportTotalIncomeEl) {
+				reportTotalIncomeEl.style.transition = 'all 0.3s ease';
+				reportTotalIncomeEl.style.transform = 'scale(1.1)';
+				setTimeout(() => reportTotalIncomeEl.style.transform = 'scale(1)', 300);
+			}
+			if (reportTotalSavingsEl) {
+				reportTotalSavingsEl.style.transition = 'all 0.3s ease';
+				reportTotalSavingsEl.style.transform = 'scale(1.1)';
+				setTimeout(() => reportTotalSavingsEl.style.transform = 'scale(1)', 300);
+			}
+			if (reportTotalExpensesEl) {
+				reportTotalExpensesEl.style.transition = 'all 0.3s ease';
+				reportTotalExpensesEl.style.transform = 'scale(1.1)';
+				setTimeout(() => reportTotalExpensesEl.style.transform = 'scale(1)', 300);
+			}
+		}, 100);
+	});
 </script>
 @endpush
 @endsection

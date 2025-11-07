@@ -6,7 +6,7 @@
 <section class="page-grid-3">
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Total Savings</div>
-        <div style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalSavings) }}</div>
+        <div id="savingsTotal" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalSavings) }}</div>
         <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">{{ number_format($savingsPercentage, 1) }}% of income</div>
     </div>
     <div class="card card-pad-lg">
@@ -249,6 +249,32 @@
         } else {
             console.log('Dashboard: BroadcastChannel not supported');
         }
+
+        // Page load animation for savings card (same as income card)
+        document.addEventListener('DOMContentLoaded', function() {
+            const savingsEl = document.getElementById('savingsTotal');
+            const incomeEl = document.getElementById('incomeTotal');
+            const expensesEl = document.getElementById('expensesTotal');
+            
+            // Animate on page load
+            setTimeout(() => {
+                if (savingsEl) {
+                    savingsEl.style.transition = 'all 0.3s ease';
+                    savingsEl.style.transform = 'scale(1.1)';
+                    setTimeout(() => savingsEl.style.transform = 'scale(1)', 300);
+                }
+                if (incomeEl) {
+                    incomeEl.style.transition = 'all 0.3s ease';
+                    incomeEl.style.transform = 'scale(1.1)';
+                    setTimeout(() => incomeEl.style.transform = 'scale(1)', 300);
+                }
+                if (expensesEl) {
+                    expensesEl.style.transition = 'all 0.3s ease';
+                    expensesEl.style.transform = 'scale(1.1)';
+                    setTimeout(() => expensesEl.style.transform = 'scale(1)', 300);
+                }
+            }, 100);
+        });
     </script>
 @endpush
 @endsection

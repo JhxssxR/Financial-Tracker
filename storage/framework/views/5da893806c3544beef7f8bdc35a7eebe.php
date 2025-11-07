@@ -345,6 +345,32 @@
 			}
 		}
 	});
+
+	// Page load animation for summary cards
+	document.addEventListener('DOMContentLoaded', function() {
+		const totalBalanceEl = document.getElementById('totalBalance');
+		const totalDepositsEl = document.getElementById('totalDeposits');
+		const totalWithdrawalsEl = document.getElementById('totalWithdrawals');
+		
+		// Animate on page load
+		setTimeout(() => {
+			if (totalBalanceEl) {
+				totalBalanceEl.style.transition = 'all 0.3s ease';
+				totalBalanceEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalBalanceEl.style.transform = 'scale(1)', 300);
+			}
+			if (totalDepositsEl) {
+				totalDepositsEl.style.transition = 'all 0.3s ease';
+				totalDepositsEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalDepositsEl.style.transform = 'scale(1)', 300);
+			}
+			if (totalWithdrawalsEl) {
+				totalWithdrawalsEl.style.transition = 'all 0.3s ease';
+				totalWithdrawalsEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalWithdrawalsEl.style.transform = 'scale(1)', 300);
+			}
+		}, 100);
+	});
 </script>
 <?php $__env->stopSection(); ?>
 

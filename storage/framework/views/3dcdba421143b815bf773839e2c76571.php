@@ -11,17 +11,17 @@
 <section class="page-grid-3">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Budgeted</div>
-		<div style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalBudgeted)); ?></div>
+		<div id="totalBudgeted" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalBudgeted)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">Active budgets</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Spent</div>
-		<div class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalSpent)); ?></div>
+		<div id="totalSpent" class="danger" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalSpent)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;"><?php echo e(number_format($spentPercentage, 1)); ?>% of budget</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Remaining</div>
-		<div class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalRemaining)); ?></div>
+		<div id="totalRemaining" class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;"><?php echo e(format_currency($totalRemaining)); ?></div>
 		<div class="muted" style="font-size:12px;margin-top:4px;text-align:right;"><?php echo e(number_format(100 - $spentPercentage, 1)); ?>% remaining</div>
 	</div>
 </section>
@@ -330,12 +330,12 @@
 		</div>
 		
 		<!-- Modal Footer -->
-		<div style="display:flex; gap:12px; padding:20px 24px; border-top:1px solid #334155;">
-			<button onclick="closeBudgetModal()" style="flex:1; padding:14px 24px; background:#0f172a; border:1px solid #334155; border-radius:12px; color:#e2e8f0; font-size:15px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">
+		<div style="display:flex; gap:12px; padding:20px 24px; border-top:1px solid #334155; justify-content:flex-end;">
+			<button onclick="closeBudgetModal()" style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:12px; color:#e2e8f0; font-size:14px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='#0f172a'">
 				Cancel
 			</button>
-			<button id="submitBudgetBtn" onclick="submitBudget()" style="flex:2; padding:14px 24px; background:#059669; border:none; border-radius:12px; color:white; font-size:15px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
-				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<button id="submitBudgetBtn" onclick="submitBudget()" style="padding:10px 16px; background:#059669; border:none; border-radius:12px; color:white; font-size:14px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background 0.2s;" onmouseover="this.style.background='#047857'" onmouseout="this.style.background='#059669'">
+				<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
 					<circle cx="12" cy="12" r="6" stroke="white" stroke-width="2"/>
 					<circle cx="12" cy="12" r="2" fill="white"/>
@@ -395,10 +395,13 @@
 
 	function editBudget(id) {
 		// Find budget data from the page
-		const budgets = <?php echo json_encode($budgets, 15, 512) ?>;
+		const budgets = <?php echo json_encode($budgets->items(), 15, 512) ?>;
 		const budget = budgets.find(b => b.id === id);
 		
-		if (!budget) return;
+		if (!budget) {
+			console.error('Budget not found with id:', id);
+			return;
+		}
 		
 		isEditMode = true;
 		currentBudgetId = id;
@@ -523,6 +526,32 @@
 			}
 		});
 	}
+
+	// Page load animation for summary cards
+	document.addEventListener('DOMContentLoaded', function() {
+		const totalBudgetedEl = document.getElementById('totalBudgeted');
+		const totalSpentEl = document.getElementById('totalSpent');
+		const totalRemainingEl = document.getElementById('totalRemaining');
+		
+		// Animate on page load
+		setTimeout(() => {
+			if (totalBudgetedEl) {
+				totalBudgetedEl.style.transition = 'all 0.3s ease';
+				totalBudgetedEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalBudgetedEl.style.transform = 'scale(1)', 300);
+			}
+			if (totalSpentEl) {
+				totalSpentEl.style.transition = 'all 0.3s ease';
+				totalSpentEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalSpentEl.style.transform = 'scale(1)', 300);
+			}
+			if (totalRemainingEl) {
+				totalRemainingEl.style.transition = 'all 0.3s ease';
+				totalRemainingEl.style.transform = 'scale(1.1)';
+				setTimeout(() => totalRemainingEl.style.transform = 'scale(1)', 300);
+			}
+		}, 100);
+	});
 </script>
 <?php $__env->stopSection(); ?>
 

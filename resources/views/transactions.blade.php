@@ -15,15 +15,15 @@
  </div><section class="page-grid-3">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Transactions</div>
-		<div style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ $totalTransactions }}</div>
+		<div id="totalTransactions" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ $totalTransactions }}</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Income</div>
-		<div class="brand" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalIncome) }}</div>
+		<div id="totalIncome" class="brand" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalIncome) }}</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Expenses</div>
-		<div class="danger" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalExpenses) }}</div>
+		<div id="totalExpenses" class="danger" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ format_currency($totalExpenses) }}</div>
 	</div>
 </section>
 
@@ -447,6 +447,32 @@
         if (e.key === 'Escape' && document.getElementById('transactionModal').classList.contains('active')) {
             closeTransactionModal();
         }
+    });
+
+    // Page load animation for summary cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalTransactionsEl = document.getElementById('totalTransactions');
+        const totalIncomeEl = document.getElementById('totalIncome');
+        const totalExpensesEl = document.getElementById('totalExpenses');
+        
+        // Animate on page load
+        setTimeout(() => {
+            if (totalTransactionsEl) {
+                totalTransactionsEl.style.transition = 'all 0.3s ease';
+                totalTransactionsEl.style.transform = 'scale(1.1)';
+                setTimeout(() => totalTransactionsEl.style.transform = 'scale(1)', 300);
+            }
+            if (totalIncomeEl) {
+                totalIncomeEl.style.transition = 'all 0.3s ease';
+                totalIncomeEl.style.transform = 'scale(1.1)';
+                setTimeout(() => totalIncomeEl.style.transform = 'scale(1)', 300);
+            }
+            if (totalExpensesEl) {
+                totalExpensesEl.style.transition = 'all 0.3s ease';
+                totalExpensesEl.style.transform = 'scale(1.1)';
+                setTimeout(() => totalExpensesEl.style.transform = 'scale(1)', 300);
+            }
+        }, 100);
     });
 </script>
 @endsection
