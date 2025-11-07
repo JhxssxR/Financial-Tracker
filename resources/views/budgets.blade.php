@@ -27,7 +27,31 @@
 </section>
 
 <section class="stack-section">
-	<div class="muted" style="font-weight:700; margin-bottom:8px;">Budget Categories</div>
+	<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+		<div style="font-weight:700; font-size:20px; color:#f1f5f9;">Budget Categories</div>
+		<div style="display:flex; align-items:center; gap:12px;">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V17L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<select id="categoryFilter" onchange="filterBudgets()" style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px 16px; color:#e2e8f0; min-width:200px; cursor:pointer;">
+				<option value="">All Categories</option>
+				@php
+					$filterSeenCategories = [];
+				@endphp
+				@foreach($categories as $category)
+					@php
+						$filterCategoryKey = strtolower(trim($category->name));
+					@endphp
+					@if(!in_array($filterCategoryKey, $filterSeenCategories))
+						@php
+							$filterSeenCategories[] = $filterCategoryKey;
+						@endphp
+						<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
+					@endif
+				@endforeach
+			</select>
+		</div>
+	</div>
 	
 	@forelse($budgets as $budget)
 		@php
@@ -51,83 +75,169 @@
 			}
 		@endphp
 		
-		<div class="card" style="padding:20px; margin-bottom:16px;">
+		<div class="card" style="padding:12px; margin-bottom:10px; background:#1a2332;" data-budget-id="{{ $budget->id }}" data-category-id="{{ $budget->category_id }}">
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-				<div style="display:flex; align-items:center; gap:10px;">
-					<span style="font-size:24px;">{{ $budget->category->icon ?? '💰' }}</span>
-					<h3 style="font-weight:600; font-size:18px;">{{ $budget->category->name ?? $budget->name }}</h3>
-					<span style="font-size:14px;">{{ $statusIcon }}</span>
+			<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+				<div style="display:flex; align-items:center; gap:8px;">
+					<div style="width:40px; height:40px; background:rgba(255, 255, 255, 0.08); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+						@php
+							// Map category names to simple outline icons
+							$categoryIcons = [
+								'Education' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 13.18v4L12 21l7-3.82v-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+								'Transportation' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 17a2 2 0 104 0 2 2 0 00-4 0zM15 17a2 2 0 104 0 2 2 0 00-4 0z" stroke="white" stroke-width="1.5"/><path d="M5 17H3v-6l2-5h9l4 5h3l2 2v4h-2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+								'Food' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7z" fill="white"/><path d="M16 2v8c0 1.1.9 2 2 2v10h2V12c1.1 0 2-.9 2-2V2h-6z" fill="white"/></svg>',
+								'Food & Dining' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7z" fill="white"/><path d="M16 2v8c0 1.1.9 2 2 2v10h2V12c1.1 0 2-.9 2-2V2h-6z" fill="white"/></svg>',
+								'Housing' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12h6v10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+								'Entertainment' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+								'Healthcare' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+								'Shopping' => '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="9" cy="21" r="1" stroke="white" stroke-width="1.5"/><circle cx="20" cy="21" r="1" stroke="white" stroke-width="1.5"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+							];
+							$categoryName = $budget->category->name ?? $budget->name;
+							$iconSvg = $categoryIcons[$categoryName] ?? '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="7" r="4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+						@endphp
+						<div style="opacity:0.7;">
+							{!! $iconSvg !!}
+						</div>
+					</div>
+					<div>
+						<h3 style="font-weight:600; font-size:14px; margin:0 0 3px 0; color:#f1f5f9;">{{ $budget->category->name ?? $budget->name }}</h3>
+						@php
+							$statusText = 'On Track';
+							$statusBg = 'rgba(16, 185, 129, 0.15)';
+							$statusColor = '#10b981';
+							if ($budget->percentage > 100) {
+								$statusText = 'Over Budget';
+								$statusBg = 'rgba(239, 68, 68, 0.15)';
+								$statusColor = '#ef4444';
+							} elseif ($budget->percentage > 90) {
+								$statusText = 'Critical';
+								$statusBg = 'rgba(245, 158, 11, 0.15)';
+								$statusColor = '#f59e0b';
+							} elseif ($budget->percentage > 75) {
+								$statusText = 'Warning';
+								$statusBg = 'rgba(245, 158, 11, 0.15)';
+								$statusColor = '#f59e0b';
+							}
+						@endphp
+						<span style="display:inline-block; padding:2px 8px; background:{{ $statusBg }}; color:{{ $statusColor }}; border-radius:8px; font-size:10px; font-weight:600;">
+							{{ $statusText }}
+						</span>
+					</div>
 				</div>
-				<div style="display:flex; gap:8px;">
-					<button onclick="editBudget({{ $budget->id }})" style="padding:6px 12px; background:#334155; border:1px solid #475569; border-radius:6px; color:#e2e8f0; cursor:pointer; font-size:13px;">
-						Edit
+				<div style="display:flex; gap:4px;">
+					<button onclick="editBudget({{ $budget->id }})" style="padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#e2e8f0'" onmouseout="this.style.color='#94a3b8'">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
 					</button>
-					<button onclick="deleteBudget({{ $budget->id }})" style="padding:6px 12px; background:#1e293b; border:1px solid #475569; border-radius:6px; color:#ef4444; cursor:pointer; font-size:13px;">
-						Delete
+					<button onclick="deleteBudget({{ $budget->id }})" style="padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">
+						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+							<path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
 					</button>
 				</div>
 			</div>
 			
 			<!-- Amount Display -->
-			<div style="margin-bottom:12px;">
-				<div style="display:flex; justify-content:space-between; align-items:baseline;">
-					<span style="font-size:24px; font-weight:700; color:{{ $textColor }}">
-						{{ format_currency($budget->spent) }}
-					</span>
-					<span style="color:#94a3b8; font-size:14px;">
-						of {{ format_currency($budget->amount) }}
-					</span>
+			<div style="margin-bottom:8px;">
+				<div style="font-size:12px; color:#94a3b8; margin-bottom:2px;">
+					{{ format_currency($budget->spent) }} of {{ format_currency($budget->amount) }} • {{ $budget->period }}
+				</div>
+				<div style="color:{{ $budget->is_expired ? '#ef4444' : '#64748b' }}; font-size:11px;">
+					@if($budget->is_expired)
+						Expired {{ abs(intval($budget->days_remaining)) }} {{ abs(intval($budget->days_remaining)) == 1 ? 'day' : 'days' }} ago
+					@elseif($budget->days_remaining == 0)
+						Expires today
+					@elseif($budget->days_remaining == 1)
+						1 day remaining
+					@else
+						{{ intval($budget->days_remaining) }} days remaining
+					@endif
 				</div>
 			</div>
 			
 			<!-- PROGRESS BAR -->
-			<div style="width:100%; height:12px; background:#1e293b; border-radius:6px; overflow:hidden; margin-bottom:12px;">
+			<div style="width:100%; height:5px; background:#0f1a29; border-radius:3px; overflow:hidden; margin-bottom:8px;">
 				<div style="
 					width: {{ min($budget->percentage, 100) }}%; 
 					height: 100%; 
 					background: {{ $barColor }};
 					transition: width 0.3s ease;
-					border-radius: 6px;
+					border-radius: 3px;
 				"></div>
 			</div>
 			
 			<!-- Footer Info -->
-			<div style="display:flex; justify-content:space-between; font-size:13px; color:#94a3b8;">
-				<span style="color:{{ $textColor }}; font-weight:600;">{{ number_format($budget->percentage, 1) }}% used</span>
-				<span>
-					{{ format_currency(abs($budget->remaining)) }} {{ $budget->remaining >= 0 ? 'remaining' : 'over budget' }} 
-					• {{ $budget->days_remaining }} days left
-				</span>
-			</div>
-			
-			<!-- Period Badge -->
-			<div style="margin-top:10px;">
-				<span style="background:#1e293b; padding:4px 10px; border-radius:4px; font-size:11px; text-transform:uppercase; color:#94a3b8;">
-					{{ $budget->period }}
-				</span>
-				<span style="color:#64748b; font-size:12px; margin-left:8px;">
-					{{ $budget->start_date->format('M d') }} - {{ $budget->end_date->format('M d, Y') }}
+			<div style="display:flex; justify-content:space-between; align-items:center;">
+				<span style="font-size:12px; font-weight:600; color:#e2e8f0;">{{ number_format($budget->percentage, 0) }}% used</span>
+				<span style="font-size:13px; font-weight:600; color:#e2e8f0;">
+					{{ format_currency(abs($budget->remaining)) }} remaining
 				</span>
 			</div>
 		</div>
 	@empty
-		<div class="card" style="padding:40px; text-align:center;">
-			<div style="font-size:48px; margin-bottom:12px;">📊</div>
-			<div class="muted" style="font-size:16px; margin-bottom:8px;">No budgets yet</div>
-			<div style="color:#64748b; font-size:14px; margin-bottom:20px;">
-				Create your first budget to start tracking your spending
+		<div class="card" style="padding:80px 40px; text-align:center; background:#0f172a; border:1px solid #1e293b;">
+			<div style="margin-bottom:20px;">
+				<svg width="80" height="80" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin:0 auto;">
+					<circle cx="12" cy="12" r="10" stroke="#475569" stroke-width="1.5"/>
+					<circle cx="12" cy="12" r="6" stroke="#475569" stroke-width="1.5"/>
+					<circle cx="12" cy="12" r="2" fill="#475569"/>
+				</svg>
 			</div>
-			<button class="card" style="padding:10px 20px; background:#059669; border-color:#059669; cursor:pointer;" onclick="openBudgetModal()">
-				+ Create Your First Budget
-			</button>
+			<div style="font-size:18px; font-weight:600; color:#e2e8f0; margin-bottom:8px;">
+				No budgets found. Create your first budget to get started!
+			</div>
 		</div>
 	@endforelse
+
+	<!-- Pagination -->
+	@if($budgets->hasPages())
+		<div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:32px; padding-bottom:24px;">
+			@if($budgets->onFirstPage())
+				<button disabled style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#475569; cursor:not-allowed; font-size:14px;">
+					Previous
+				</button>
+			@else
+				<a href="{{ $budgets->previousPageUrl() }}" style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; cursor:pointer; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+					Previous
+				</a>
+			@endif
+
+			<div style="display:flex; gap:4px;">
+				@foreach(range(1, $budgets->lastPage()) as $page)
+					@if($page == $budgets->currentPage())
+						<span style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#10b981; border-radius:8px; color:white; font-weight:600; font-size:14px;">
+							{{ $page }}
+						</span>
+					@else
+						<a href="{{ $budgets->url($page) }}" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+							{{ $page }}
+						</a>
+					@endif
+				@endforeach
+			</div>
+
+			@if($budgets->hasMorePages())
+				<a href="{{ $budgets->nextPageUrl() }}" style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; cursor:pointer; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+					Next
+				</a>
+			@else
+				<button disabled style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#475569; cursor:not-allowed; font-size:14px;">
+					Next
+				</button>
+			@endif
+		</div>
+
+		<div style="text-align:center; color:#64748b; font-size:13px; padding-bottom:16px;">
+			Showing {{ $budgets->firstItem() }} to {{ $budgets->lastItem() }} of {{ $budgets->total() }} budgets
+		</div>
+	@endif
 </section>
 
 <!-- Budget Modal -->
 <div id="budgetModal" class="modal-overlay">
-	<div class="modal-container" style="max-width:540px; background:#1e293b; border-radius:16px; padding:0;">
+	<div class="modal-container" style="max-width:540px; width:90%; background:#1e293b; border-radius:16px; padding:0;">
 		<!-- Modal Header -->
 		<div style="display:flex; align-items:center; gap:16px; padding:24px; border-bottom:1px solid #334155;">
 			<div style="width:56px; height:56px; background:#059669; border-radius:12px; display:flex; align-items:center; justify-content:center;">
@@ -158,8 +268,19 @@
 					</label>
 					<select id="budgetCategory" name="category_id" required style="width:100%; background:#0f172a; border:1px solid #334155; border-radius:12px; padding:14px 16px; color:#e2e8f0; font-size:15px; cursor:pointer; transition:border-color 0.2s;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#334155'">
 						<option value="" style="color:#64748b;">Select a category...</option>
+						@php
+							$seenCategories = [];
+						@endphp
 						@foreach($categories as $category)
-							<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
+							@php
+								$categoryKey = strtolower(trim($category->name));
+							@endphp
+							@if(!in_array($categoryKey, $seenCategories))
+								@php
+									$seenCategories[] = $categoryKey;
+								@endphp
+								<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
+							@endif
 						@endforeach
 					</select>
 				</div>
@@ -381,5 +502,21 @@
 			closeBudgetModal();
 		}
 	});
+
+	// Filter budgets by category
+	function filterBudgets() {
+		const categoryValue = document.getElementById('categoryFilter').value;
+		const budgetCards = document.querySelectorAll('.card[data-budget-id]');
+		
+		budgetCards.forEach(card => {
+			const budgetCategoryId = card.getAttribute('data-category-id');
+			
+			if (categoryValue === '' || budgetCategoryId === categoryValue) {
+				card.style.display = '';
+			} else {
+				card.style.display = 'none';
+			}
+		});
+	}
 </script>
 @endsection

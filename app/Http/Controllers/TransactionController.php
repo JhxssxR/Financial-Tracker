@@ -14,16 +14,17 @@ class TransactionController extends Controller
     {
         $user = Auth::user();
         
-        // Get all transactions for the current user
+        // Get all transactions for the current user with pagination
         $transactions = Transaction::where('user_id', $user->id)
             ->with('category')
             ->orderBy('transaction_date', 'desc')
-            ->get();
+            ->paginate(5);
         
-        // Calculate totals
-        $totalIncome = $transactions->where('type', 'income')->sum('amount');
-        $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
-        $totalTransactions = $transactions->count();
+        // Calculate totals from all transactions (not just paginated)
+        $allTransactions = Transaction::where('user_id', $user->id)->get();
+        $totalIncome = $allTransactions->where('type', 'income')->sum('amount');
+        $totalExpenses = $allTransactions->where('type', 'expense')->sum('amount');
+        $totalTransactions = $allTransactions->count();
         
         // Get categories for the dropdown and remove duplicate names per type
         $categories = Category::all()->groupBy('type')->map(function ($group) {

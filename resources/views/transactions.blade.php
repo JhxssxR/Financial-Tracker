@@ -120,6 +120,49 @@
 			</tbody>
         </table>
     </div>
+
+	<!-- Pagination -->
+	@if($transactions->hasPages())
+		<div style="display:flex; justify-content:center; align-items:center; gap:8px; padding:24px 0;">
+			@if($transactions->onFirstPage())
+				<button disabled style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#475569; cursor:not-allowed; font-size:14px;">
+					Previous
+				</button>
+			@else
+				<a href="{{ $transactions->previousPageUrl() }}" style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; cursor:pointer; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+					Previous
+				</a>
+			@endif
+
+			<div style="display:flex; gap:4px;">
+				@foreach(range(1, $transactions->lastPage()) as $page)
+					@if($page == $transactions->currentPage())
+						<span style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#10b981; border-radius:8px; color:white; font-weight:600; font-size:14px;">
+							{{ $page }}
+						</span>
+					@else
+						<a href="{{ $transactions->url($page) }}" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+							{{ $page }}
+						</a>
+					@endif
+				@endforeach
+			</div>
+
+			@if($transactions->hasMorePages())
+				<a href="{{ $transactions->nextPageUrl() }}" style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#e2e8f0; cursor:pointer; font-size:14px; text-decoration:none; transition:all 0.2s;" onmouseover="this.style.background='#1e293b'; this.style.borderColor='#10b981'" onmouseout="this.style.background='#0f172a'; this.style.borderColor='#334155'">
+					Next
+				</a>
+			@else
+				<button disabled style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#475569; cursor:not-allowed; font-size:14px;">
+					Next
+				</button>
+			@endif
+		</div>
+
+		<div style="text-align:center; color:#64748b; font-size:13px; padding-bottom:16px;">
+			Showing {{ $transactions->firstItem() }} to {{ $transactions->lastItem() }} of {{ $transactions->total() }} transactions
+		</div>
+	@endif
 </section>
 
 <!-- Add Transaction Modal -->

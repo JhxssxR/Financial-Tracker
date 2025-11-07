@@ -18,7 +18,7 @@ class BudgetController extends Controller
         $budgets = Budget::where('user_id', $user->id)
             ->with('category')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(3);
         
         // Calculate spent for each budget from transactions
         foreach ($budgets as $budget) {
@@ -38,7 +38,10 @@ class BudgetController extends Controller
             $budget->remaining = $budget->amount - $budget->spent;
             
             // Calculate days remaining in budget period
-            $budget->days_remaining = max(0, now()->diffInDays($budget->end_date, false));
+            $endDate = \Carbon\Carbon::parse($budget->end_date);
+            $daysRemaining = now()->diffInDays($endDate, false);
+            $budget->days_remaining = $daysRemaining;
+            $budget->is_expired = $daysRemaining < 0;
         }
         
         // Calculate summary totals

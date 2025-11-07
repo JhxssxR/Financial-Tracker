@@ -173,11 +173,10 @@
 
     @unless($isAuth)
         <button id="ai-chat-trigger" class="fab" title="Chat with AI" aria-label="Open chatbot">
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 12c0 4.418-4.03 8-9 8-1.1 0-2.15-.167-3.11-.474L3 21l1.6-3.2C3.61 16.432 3 14.79 3 13c0-4.418 4.03-8 9-8s9 3.582 9 7z" stroke="#05261d" stroke-width="1.5" fill="#d1fae5"/>
-                <circle cx="9" cy="12" r="1.25" fill="#065f46"/>
-                <circle cx="12" cy="12" r="1.25" fill="#065f46"/>
-                <circle cx="15" cy="12" r="1.25" fill="#065f46"/>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 1.54.36 3 .97 4.29L2 22l5.71-.97C9 21.64 10.46 22 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2z" fill="white" stroke="#05261d" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.5 11.5c.828 0 1.5-.672 1.5-1.5S9.328 8.5 8.5 8.5 7 9.172 7 10s.672 1.5 1.5 1.5zM15.5 11.5c.828 0 1.5-.672 1.5-1.5S16.328 8.5 15.5 8.5 14 9.172 14 10s.672 1.5 1.5 1.5z" fill="#05261d"/>
+                <path d="M8 14c.5 1.5 2 2.5 4 2.5s3.5-1 4-2.5" stroke="#05261d" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
         </button>
         <script>

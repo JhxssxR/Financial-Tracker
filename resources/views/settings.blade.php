@@ -167,60 +167,6 @@
         </div>
     </div>
 
-    <!-- Privacy & Security Section -->
-    <div class="card card-pad-lg" style="margin-bottom:24px;">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-            <div style="width:48px;height:48px;background:#1a2b3a;border-radius:12px;display:grid;place-items:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div>
-                <h2 style="font-size:20px;font-weight:700;margin:0;">Privacy & Security</h2>
-                <p class="muted" style="margin:0;font-size:14px;">Control your data and privacy</p>
-            </div>
-        </div>
-
-        <!-- Show Balance -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Show Balance</div>
-                <div class="muted" style="font-size:13px;">Display balance on dashboard</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" checked style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#334155;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(24px);"></span>
-            </label>
-        </div>
-
-        <!-- Public Profile -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Public Profile</div>
-                <div class="muted" style="font-size:13px;">Make your profile visible to others</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#1e293b;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#94a3b8;border-radius:50%;transition:.3s;"></span>
-            </label>
-        </div>
-
-        <!-- Share Analytics Data -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Share Analytics Data</div>
-                <div class="muted" style="font-size:13px;">Help improve our service</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#1e293b;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#94a3b8;border-radius:50%;transition:.3s;"></span>
-            </label>
-        </div>
-    </div>
-
     <!-- Account Section -->
     <div class="card card-pad-lg" style="margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
