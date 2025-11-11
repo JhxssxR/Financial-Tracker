@@ -46,7 +46,7 @@
 						<?php
 							$filterSeenCategories[] = $filterCategoryKey;
 						?>
-						<option value="<?php echo e($category->id); ?>"><?php echo e($category->icon ?? '📁'); ?> <?php echo e($category->name); ?></option>
+						<option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option>
 					<?php endif; ?>
 				<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 			</select>
@@ -120,10 +120,13 @@
 								$statusColor = '#f59e0b';
 							}
 						?>
-						<span style="display:inline-block; padding:2px 8px; background:<?php echo e($statusBg); ?>; color:<?php echo e($statusColor); ?>; border-radius:8px; font-size:10px; font-weight:600;">
-							<?php echo e($statusText); ?>
+						<div style="display:flex;align-items:center;gap:8px;">
+							<span style="font-size:16px;line-height:1;color:<?php echo e($statusColor); ?>;"><?php echo e($statusIcon); ?></span>
+							<span style="display:inline-block; padding:2px 8px; background:<?php echo e($statusBg); ?>; color:<?php echo e($statusColor); ?>; border-radius:8px; font-size:10px; font-weight:600;">
+								<?php echo e($statusText); ?>
 
-						</span>
+							</span>
+						</div>
 					</div>
 				</div>
 				<div style="display:flex; gap:4px;">
@@ -284,7 +287,7 @@
 								<?php
 									$seenCategories[] = $categoryKey;
 								?>
-								<option value="<?php echo e($category->id); ?>"><?php echo e($category->icon ?? '📁'); ?> <?php echo e($category->name); ?></option>
+								<option value="<?php echo e($category->id); ?>"><?php echo e($category->name); ?></option>
 							<?php endif; ?>
 						<?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 					</select>

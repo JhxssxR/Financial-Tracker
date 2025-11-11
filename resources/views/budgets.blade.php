@@ -46,7 +46,7 @@
 						@php
 							$filterSeenCategories[] = $filterCategoryKey;
 						@endphp
-						<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
+						<option value="{{ $category->id }}">{{ $category->name }}</option>
 					@endif
 				@endforeach
 			</select>
@@ -119,9 +119,12 @@
 								$statusColor = '#f59e0b';
 							}
 						@endphp
-						<span style="display:inline-block; padding:2px 8px; background:{{ $statusBg }}; color:{{ $statusColor }}; border-radius:8px; font-size:10px; font-weight:600;">
-							{{ $statusText }}
-						</span>
+						<div style="display:flex;align-items:center;gap:8px;">
+							<span style="font-size:16px;line-height:1;color:{{ $statusColor }};">{{ $statusIcon }}</span>
+							<span style="display:inline-block; padding:2px 8px; background:{{ $statusBg }}; color:{{ $statusColor }}; border-radius:8px; font-size:10px; font-weight:600;">
+								{{ $statusText }}
+							</span>
+						</div>
 					</div>
 				</div>
 				<div style="display:flex; gap:4px;">
@@ -279,7 +282,7 @@
 								@php
 									$seenCategories[] = $categoryKey;
 								@endphp
-								<option value="{{ $category->id }}">{{ $category->icon ?? '📁' }} {{ $category->name }}</option>
+								<option value="{{ $category->id }}">{{ $category->name }}</option>
 							@endif
 						@endforeach
 					</select>

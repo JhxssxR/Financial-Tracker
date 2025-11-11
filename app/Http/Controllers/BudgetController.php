@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Budget;
 use App\Models\Transaction;
 use App\Models\Category;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class BudgetController extends Controller
@@ -42,6 +43,39 @@ class BudgetController extends Controller
             $daysRemaining = now()->diffInDays($endDate, false);
             $budget->days_remaining = $daysRemaining;
             $budget->is_expired = $daysRemaining < 0;
+        }
+
+        // Create notifications for budgets that are in warning/critical/over states.
+        // Use firstOrCreate to avoid duplicate notifications for the same budget/title.
+        foreach ($budgets as $budget) {
+            $percentage = $budget->percentage;
+            $categoryName = $budget->category->name ?? $budget->name;
+
+            if ($percentage > 75) {
+                if ($percentage > 100) {
+                    $title = "Budget Over: {$categoryName}";
+                    $message = "Your {$categoryName} budget is over by " . number_format($percentage, 0) . "% (spent: " . number_format($budget->spent, 2) . ").";
+                } elseif ($percentage > 90) {
+                    $title = "Budget Critical: {$categoryName}";
+                    $message = "Your {$categoryName} budget is critical at " . number_format($percentage, 0) . "% used.";
+                } else {
+                    $title = "Budget Warning: {$categoryName}";
+                    $message = "Your {$categoryName} budget is at " . number_format($percentage, 0) . "% used.";
+                }
+
+                // Avoid creating exact duplicate notifications with same title for the user
+                Notification::firstOrCreate(
+                    [
+                        'user_id' => $user->id,
+                        'type' => 'budget',
+                        'title' => $title,
+                    ],
+                    [
+                        'message' => $message,
+                        'is_read' => false,
+                    ]
+                );
+            }
         }
         
         // Calculate summary totals

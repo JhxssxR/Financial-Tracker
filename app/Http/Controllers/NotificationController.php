@@ -13,11 +13,15 @@ class NotificationController extends Controller
      */
     public function index()
     {
+        // Only show unread notifications in the main list (matches the UI: recent unread)
         $notifications = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
             ->orderBy('created_at', 'desc')
             ->get();
-        
-        return view('notifications', compact('notifications'));
+
+        $unreadCount = $notifications->count();
+
+        return view('notifications', compact('notifications', 'unreadCount'));
     }
 
     /**
@@ -32,7 +36,28 @@ class NotificationController extends Controller
         $notification->is_read = true;
         $notification->save();
 
-        return response()->json(['success' => true, 'id' => $notification->id]);
+        // Return authoritative unread count and latest unread notification (if any)
+        $unreadCount = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        $latestUnread = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'id' => $notification->id,
+            'newCount' => $unreadCount,
+            'latestUnread' => $latestUnread ? [
+                'id' => $latestUnread->id,
+                'title' => $latestUnread->title,
+                'message' => $latestUnread->message,
+                'type' => $latestUnread->type,
+                'created_at' => $latestUnread->created_at->toDateTimeString(),
+            ] : null,
+        ]);
     }
 
     /**
@@ -44,8 +69,34 @@ class NotificationController extends Controller
             return response()->json(['success' => false], 403);
         }
 
-        $notification->delete();
+        // Instead of permanently deleting the notification, mark it as read/dismissed.
+        // This prevents server-generated budget notifications from being recreated
+        // if the budgets page runs the creation logic again.
+        $notification->is_read = true;
+        $notification->save();
 
-        return response()->json(['success' => true, 'id' => $notification->id]);
+        // Return authoritative unread count and latest unread
+        $unreadCount = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        $latestUnread = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return response()->json([
+            'success' => true,
+            'id' => $notification->id,
+            'message' => 'Notification dismissed',
+            'newCount' => $unreadCount,
+            'latestUnread' => $latestUnread ? [
+                'id' => $latestUnread->id,
+                'title' => $latestUnread->title,
+                'message' => $latestUnread->message,
+                'type' => $latestUnread->type,
+                'created_at' => $latestUnread->created_at->toDateTimeString(),
+            ] : null,
+        ]);
     }
 }

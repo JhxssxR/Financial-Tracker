@@ -7,6 +7,7 @@ use App\Models\Saving;
 use App\Models\SavingsTransaction;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Notification;
 
 class DashboardController extends Controller
 {
@@ -46,6 +47,16 @@ class DashboardController extends Controller
         
         // Get monthly data for the last 6 months for chart
         $monthlyData = $this->getMonthlyData($user->id);
+
+        // Notifications: unread count and latest unread notification
+        $unreadCount = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->count();
+
+        $latestUnread = Notification::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->first();
         
         return view('dashboard', compact(
             'totalIncome',
@@ -55,7 +66,10 @@ class DashboardController extends Controller
             'expensePercentage',
             'recentTransactions',
             'monthlyData'
-        ));
+        ))->with([
+            'unreadCount' => $unreadCount,
+            'latestUnread' => $latestUnread,
+        ]);
     }
     
     private function getMonthlyData($userId)

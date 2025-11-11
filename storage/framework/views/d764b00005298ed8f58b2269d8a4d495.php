@@ -8,7 +8,11 @@
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
             <h1 style="font-size:32px;font-weight:700;margin:0;">Notifications</h1>
-            <p class="muted" style="margin:4px 0 0;font-size:14px;">All caught up!</p>
+            <?php if(isset($unreadCount) && $unreadCount > 0): ?>
+                <p class="muted" style="margin:4px 0 0;font-size:14px;">You have <?php echo e($unreadCount); ?> unread notification<?php echo e($unreadCount > 1 ? 's' : ''); ?></p>
+            <?php else: ?>
+                <p class="muted" style="margin:4px 0 0;font-size:14px;">All caught up!</p>
+            <?php endif; ?>
         </div>
         <a href="<?php echo e(route('settings.index')); ?>" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;text-decoration:none;font-weight:600;transition:all .2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#1e293b'">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25,16 +29,88 @@
             <h2 style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
             
             <?php $__empty_1 = true; $__currentLoopData = $notifications; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $notification): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
-            <div class="card notif-item" data-id="<?php echo e($notification->id); ?>" style="padding:16px 20px;margin-bottom:12px;display:flex;align-items:center;gap:16px;<?php echo e($notification->is_read ? 'opacity:0.5;' : 'opacity:1;'); ?>">
-                <div style="width:48px;height:48px;background:<?php echo e($notification->type === 'savings' ? '#059669' : ($notification->type === 'budget' ? '#3b82f6' : '#8b5cf6')); ?>;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <?php
+                // Determine left border color and badge text for visual emphasis
+                // Apply warning/over rules based on title keywords for all notification types
+                $leftColor = '#475569'; // default muted
+                $statusBadge = null;
+                $priorityBadge = null;
+
+                $title = $notification->title ?? '';
+
+                // Global keyword checks (apply to all notification types)
+                if (stripos($title, 'Exceeded') !== false || stripos($title, 'Over') !== false) {
+                    $leftColor = '#ef4444'; // red
+                    $priorityBadge = 'high';
+                    $statusBadge = 'Over Budget';
+                } elseif (stripos($title, 'Near') !== false || stripos($title, 'Warning') !== false || stripos($title, 'Limit') !== false) {
+                    $leftColor = '#f59e0b'; // orange
+                    $priorityBadge = 'medium';
+                    $statusBadge = 'Near Limit';
+                } else {
+                    // Fallback per type
+                    if ($notification->type === 'savings') {
+                        $leftColor = '#059669';
+                        $priorityBadge = 'medium';
+                    } elseif ($notification->type === 'budget') {
+                        $leftColor = '#f59e0b';
+                        $priorityBadge = 'medium';
+                    } else {
+                        $leftColor = '#475569';
+                    }
+                }
+            ?>
+
+            <?php
+                // Try to extract a category from title if present (e.g. "Budget Over: Transportation")
+                $categoryName = null;
+                if (strpos($title, ':') !== false) {
+                    $parts = explode(':', $title, 2);
+                    $categoryName = trim($parts[1]);
+                }
+
+                // Map some common categories to colors (fallbacks)
+                $iconBgColor = '#3b82f6'; // default blue
+                if ($categoryName) {
+                    $cn = strtolower($categoryName);
+                    if (strpos($cn, 'shopping') !== false) $iconBgColor = '#3b82f6';
+                    elseif (strpos($cn, 'transport') !== false) $iconBgColor = '#f59e0b';
+                    elseif (strpos($cn, 'housing') !== false || strpos($cn, 'rent') !== false) $iconBgColor = '#ef4444';
+                    elseif (strpos($cn, 'education') !== false) $iconBgColor = '#06b6d4';
+                    else $iconBgColor = '#374151';
+                } else {
+                    // fallback by type
+                    if ($notification->type === 'savings') $iconBgColor = '#059669';
+                    elseif ($notification->type === 'budget') $iconBgColor = '#3b82f6';
+                    else $iconBgColor = '#8b5cf6';
+                }
+            ?>
+
+                <div class="card notif-item" data-id="<?php echo e($notification->id); ?>" style="position:relative;padding:18px 22px;margin-bottom:14px;display:flex;align-items:center;gap:18px;border-radius:12px;border-left:6px solid <?php echo e($leftColor); ?>;background:#0f1724;">
+                <?php
+                    // Avatar background: default to icon bg, but use yellow when Near Limit
+                    $avatarBg = $iconBgColor;
+                    if ($statusBadge === 'Near Limit') {
+                        $avatarBg = '#f59e0b';
+                    }
+                ?>
+                <div style="width:48px;height:48px;background:<?php echo e($avatarBg); ?>;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                     <?php if($notification->type === 'savings'): ?>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <?php elseif($notification->type === 'budget'): ?>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                        <?php if($statusBadge === 'Near Limit'): ?>
+                            
+                            <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 5.5L3.2 18.8h17.6L12 5.5z" fill="#111"/></svg>
+                        <?php else: ?>
+                            
+                            <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+                                <path d="M12 2.2c-.6 0-1.2.3-1.6.8L3 15.8c-.9 1.4.2 3.3 1.9 3.3h14.2c1.7 0 2.8-1.9 1.9-3.3L13.6 3c-.4-.5-1-.8-1.6-.8z" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                                <path d="M12 8.6v4.2" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="12" cy="17" r="0.9" fill="#fff" />
+                            </svg>
+                        <?php endif; ?>
                     <?php else: ?>
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -42,27 +118,49 @@
                     <?php endif; ?>
                 </div>
                 <div style="flex:1;">
-                    <h3 style="font-size:16px;font-weight:600;margin:0 0 4px;color:#e2e8f0;"><?php echo e($notification->title); ?></h3>
-                    <p style="font-size:14px;margin:0;color:#94a3b8;"><?php echo e($notification->message); ?></p>
-                    <p style="font-size:12px;margin:6px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
-                    <?php if(!$notification->is_read): ?>
-                    <div class="unread-dot" style="width:8px;height:8px;background:#3b82f6;border-radius:50%;flex-shrink:0;"></div>
-                    <?php endif; ?>
-
-                    
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <?php if(!$notification->is_read): ?>
-                        <button class="notif-action" data-action="read" data-id="<?php echo e($notification->id); ?>" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#94a3b8;transition:all .2s;" onmouseover="this.style.background='#334155';this.style.color='#10b981'" onmouseout="this.style.background='transparent';this.style.color='#94a3b8'">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </button>
+                    <div style="display:flex;align-items:center;gap:12px;">
+                        
+                        <h3 style="font-size:16px;font-weight:700;margin:0;color:#e2e8f0;"><?php echo e($notification->title); ?></h3>
+                        <?php if($priorityBadge): ?>
+                            <span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;"><?php echo e($priorityBadge); ?></span>
                         <?php endif; ?>
-                        <button class="notif-action" data-action="delete" data-id="<?php echo e($notification->id); ?>" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#f87171;transition:all .2s;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </button>
+                        <?php if($statusBadge): ?>
+                            <?php if($statusBadge === 'Over Budget'): ?>
+                                <span style="background:#ef4444;color:#fff;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700;"><?php echo e($statusBadge); ?></span>
+                            <?php else: ?>
+                                
+                                <span style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.08);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;">
+                                            
+                                            <svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;">
+                                                <path d="M12 7l-5 8h10l-5-8z" fill="#111" />
+                                            </svg>
+                                        </span>
+                                    <?php echo e($statusBadge); ?>
+
+                                </span>
+                            <?php endif; ?>
+                        <?php endif; ?>
                     </div>
+                    <p style="font-size:14px;margin:8px 0 0;color:#94a3b8;"><?php echo e($notification->message); ?></p>
+                    <p style="font-size:12px;margin:10px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
                 </div>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    
+                    <?php if(!$notification->is_read): ?>
+                    <button class="notif-action" data-action="read" data-id="<?php echo e($notification->id); ?>" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <?php endif; ?>
+                    <button class="notif-action" data-action="delete" data-id="<?php echo e($notification->id); ?>" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                </div>
+
+                <?php if(!$notification->is_read): ?>
+                
+                <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
+                <?php endif; ?>
             </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <!-- Empty State -->
@@ -159,14 +257,25 @@
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
         const csrf = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
 
-        function updateNavBadge(decrementBy = 1) {
+        // Set the nav badge and page header to an authoritative count
+        function updateNavBadgeTo(newCount) {
             const el = document.getElementById('nav-notif-count');
-            if (!el) return;
-            const current = parseInt(el.textContent || '0', 10) || 0;
-            const next = Math.max(0, current - decrementBy);
-            el.textContent = next > 0 ? next : '';
-            if (next === 0) {
-                el.style.display = 'none';
+            if (el) {
+                el.textContent = newCount > 0 ? String(newCount) : '';
+                el.style.display = newCount > 0 ? '' : 'none';
+            }
+            // Also update the page header summary (You have X unread notifications / All caught up!)
+            try {
+                const headerP = document.querySelector('h1 + p.muted');
+                if (headerP) {
+                    if (newCount > 0) {
+                        headerP.textContent = `You have ${newCount} unread notification${newCount > 1 ? 's' : ''}`;
+                    } else {
+                        headerP.textContent = 'All caught up!';
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to update header unread text', e);
             }
         }
 
@@ -198,7 +307,7 @@
                 try {
                     if (action === 'read') {
                         const url = `/notifications/${id}/read`;
-                        await sendRequest(url, 'POST');
+                        const resp = await sendRequest(url, 'POST');
                         // Mark notification as read (change opacity and remove unread dot)
                         const item = document.querySelector(`.notif-item[data-id='${id}']`);
                         if (item) {
@@ -209,8 +318,26 @@
                             const checkBtn = item.querySelector('.notif-action[data-action="read"]');
                             if (checkBtn) checkBtn.style.display = 'none';
                         }
-                        updateNavBadge(1);
+
+                        // Use authoritative count from server response
+                        const next = typeof resp.newCount === 'number' ? resp.newCount : null;
+                        if (next !== null) {
+                            updateNavBadgeTo(next);
+                        }
                         showToast('Notification marked as read', 'success');
+
+                        // Broadcast authoritative update to other tabs (so dashboard can update)
+                        try {
+                            const payload = { ts: Date.now(), action: 'read', newCount: next, latestUnread: resp.latestUnread || null };
+                            localStorage.setItem('notifications:latest', JSON.stringify(payload));
+                            if (typeof BroadcastChannel !== 'undefined') {
+                                const bc = new BroadcastChannel('notifications-updates');
+                                bc.postMessage(payload);
+                                bc.close();
+                            }
+                        } catch (e) {
+                            console.error('Notification broadcast failed', e);
+                        }
                     }
 
                     if (action === 'delete') {
@@ -220,11 +347,29 @@
                         }
 
                         const url = `/notifications/${id}`;
-                        await sendRequest(url, 'DELETE');
+                        const resp = await sendRequest(url, 'DELETE');
                         const item = document.querySelector(`.notif-item[data-id='${id}']`);
                         if (item) item.remove();
-                        updateNavBadge(1);
+
+                        const next = typeof resp.newCount === 'number' ? resp.newCount : null;
+                        if (next !== null) {
+                            updateNavBadgeTo(next);
+                        }
+
                         showToast('Notification deleted successfully', 'success');
+
+                        // Broadcast authoritative update to other tabs
+                        try {
+                            const payload = { ts: Date.now(), action: 'delete', newCount: next, latestUnread: resp.latestUnread || null };
+                            localStorage.setItem('notifications:latest', JSON.stringify(payload));
+                            if (typeof BroadcastChannel !== 'undefined') {
+                                const bc = new BroadcastChannel('notifications-updates');
+                                bc.postMessage(payload);
+                                bc.close();
+                            }
+                        } catch (e) {
+                            console.error('Notification broadcast failed', e);
+                        }
                     }
                 } catch (err) {
                     console.error('Notification action failed', err);

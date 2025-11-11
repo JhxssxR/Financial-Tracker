@@ -295,7 +295,7 @@
             </div>
         </div>
         
-        <!-- Monthly Trend -->
+        <!-- Monthly Trends -->
         <div class="section">
             <div class="section-title">📈 Monthly Trend (Last 6 Months)</div>
             <div class="monthly-data">
