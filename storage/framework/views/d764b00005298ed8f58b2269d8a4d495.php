@@ -59,6 +59,16 @@
                         $leftColor = '#475569';
                     }
                 }
+
+                // Remove the 'medium' badge for savings and withdraw notifications
+                // (keep 'high' badges intact)
+                if ($priorityBadge === 'medium' && (
+                    $notification->type === 'savings' ||
+                    stripos($title, 'withdraw') !== false ||
+                    stripos($title, 'withdrawal') !== false
+                )) {
+                    $priorityBadge = null;
+                }
             ?>
 
             <?php
