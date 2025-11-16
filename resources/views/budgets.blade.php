@@ -563,5 +563,11 @@
 			}
 		}, 100);
 	});
-</script>
+@push('scripts')
+	<script>
+		window.__BUDGETS = @json($budgets->items());
+	</script>
+	<script src="{{ asset('js/budgets.js') }}"></script>
+@endpush
+
 @endsection
