@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use App\Models\Category;
+use App\Models\Budget;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use PDF;
 
@@ -48,7 +50,7 @@ class TransactionController extends Controller
         
         $transaction = Transaction::create($validated);
 
-        // Compute year-to-date totals (2025) so UI can be updated live
+        // Compute year-to-date totals so UI can be updated live
         $currentYear = now()->year;
 
         $totalIncome = Transaction::where('user_id', Auth::id())
@@ -61,7 +63,93 @@ class TransactionController extends Controller
             ->whereYear('transaction_date', $currentYear)
             ->sum('amount');
 
-        return response()->json([
+        // Prepare optional notifications payload
+        $notificationsPayload = null;
+
+        // If this is an expense, check for budgets on the same category and update spent
+        if ($transaction->type === 'expense') {
+            $txDate = $transaction->transaction_date;
+            $budgets = Budget::where('user_id', Auth::id())
+                ->where('category_id', $transaction->category_id)
+                ->where(function ($q) use ($txDate) {
+                    $q->whereNull('start_date')->orWhere('start_date', '<=', $txDate);
+                })
+                ->where(function ($q) use ($txDate) {
+                    $q->whereNull('end_date')->orWhere('end_date', '>=', $txDate);
+                })
+                ->get();
+
+            foreach ($budgets as $budget) {
+                // Avoid division by zero
+                if ((float) $budget->amount <= 0) {
+                    continue;
+                }
+
+                $oldSpent = (float) $budget->spent;
+                $newSpent = $oldSpent + (float) $transaction->amount;
+
+                $oldPercent = $budget->amount > 0 ? ($oldSpent / $budget->amount) * 100 : 0;
+                $newPercent = $budget->amount > 0 ? ($newSpent / $budget->amount) * 100 : 0;
+
+                // Update spent on budget
+                $budget->spent = $newSpent;
+                $budget->save();
+
+                // Check threshold crossings and create a notification if needed
+                $createNotification = null;
+
+                if ($oldPercent <= 75 && $newPercent > 75 && $newPercent <= 90) {
+                    $createNotification = [
+                        'type' => 'budget',
+                        'title' => "Budget Warning: {$budget->name}",
+                        'message' => "Your {$budget->name} budget is at " . number_format($newPercent, 0) . "% used.",
+                    ];
+                } elseif ($oldPercent <= 90 && $newPercent > 90 && $newPercent <= 100) {
+                    $createNotification = [
+                        'type' => 'budget',
+                        'title' => "Budget Critical: {$budget->name}",
+                        'message' => "Your {$budget->name} budget is critical at " . number_format($newPercent, 0) . "% used.",
+                    ];
+                } elseif ($oldPercent <= 100 && $newPercent > 100) {
+                    $createNotification = [
+                        'type' => 'budget',
+                        'title' => "Budget Over: {$budget->name}",
+                        'message' => "Your {$budget->name} budget is now over by " . number_format($newPercent - 100, 0) . "%.",
+                    ];
+                }
+
+                if ($createNotification) {
+                    // Deduplicate by user and title
+                    $notif = Notification::firstOrCreate(
+                        [
+                            'user_id' => Auth::id(),
+                            'title' => $createNotification['title'],
+                        ],
+                        [
+                            'type' => $createNotification['type'],
+                            'message' => $createNotification['message'],
+                            'is_read' => false,
+                        ]
+                    );
+
+                    // Build the notifications payload (authoritative)
+                    $newCount = Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+                    $latest = Notification::where('user_id', Auth::id())->where('is_read', false)->latest('created_at')->first();
+
+                    $notificationsPayload = [
+                        'newCount' => $newCount,
+                        'latestUnread' => $latest ? [
+                            'id' => $latest->id,
+                            'title' => $latest->title,
+                            'message' => $latest->message,
+                            'created_at' => $latest->created_at->toDateTimeString(),
+                        ] : null,
+                    ];
+                }
+            }
+        }
+
+        $response = [
             'success' => true,
             'message' => 'Transaction added successfully!',
             'transaction' => $transaction,
@@ -71,7 +159,13 @@ class TransactionController extends Controller
                 'rawIncome' => (float) $totalIncome,
                 'rawExpenses' => (float) $totalExpenses,
             ]
-        ]);
+        ];
+
+        if ($notificationsPayload) {
+            $response['notifications'] = $notificationsPayload;
+        }
+
+        return response()->json($response);
     }
     
     public function destroy($id)

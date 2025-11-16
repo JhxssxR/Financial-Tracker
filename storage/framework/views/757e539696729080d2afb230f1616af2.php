@@ -267,9 +267,7 @@
 <script src="<?php echo e(asset('js/transactions.js')); ?>" defer></script>
 <?php $__env->stopPush(); ?>
 <script>
-    // continue: filterTransactions definition used when script loads (kept minimal)
-    // This inline section intentionally left blank; core logic moved to public/js/transactions.js
-    // Exposed functions: openTransactionModal, closeTransactionModal, selectType, submitTransaction, filterTransactions, clearFilters
+   
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/transactions.blade.php ENDPATH**/ ?>

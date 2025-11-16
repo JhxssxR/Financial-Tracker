@@ -99,4 +99,30 @@ class NotificationController extends Controller
             ] : null,
         ]);
     }
+
+    /**
+     * Return authoritative unread count and latest unread notification.
+     */
+    public function unreadCount()
+    {
+        $unreadCount = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        $latestUnread = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        return response()->json([
+            'newCount' => $unreadCount,
+            'latestUnread' => $latestUnread ? [
+                'id' => $latestUnread->id,
+                'title' => $latestUnread->title,
+                'message' => $latestUnread->message,
+                'type' => $latestUnread->type,
+                'created_at' => $latestUnread->created_at->toDateTimeString(),
+            ] : null,
+        ]);
+    }
 }

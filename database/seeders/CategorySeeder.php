@@ -32,7 +32,11 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            Category::create($category);
+            // Use firstOrCreate to avoid duplicate entries when seeding multiple times
+            Category::firstOrCreate([
+                'name' => $category['name'],
+                'type' => $category['type'],
+            ], $category);
         }
     }
 }

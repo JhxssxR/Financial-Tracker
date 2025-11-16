@@ -326,6 +326,20 @@
                             // Hide the check button after marking as read
                             const checkBtn = item.querySelector('.notif-action[data-action="read"]');
                             if (checkBtn) checkBtn.style.display = 'none';
+                            // Remove the colored left border to indicate it's no longer active
+                            try {
+                                // Remove the CSS border and draw an inset left stripe (box-shadow)
+                                // This preserves a closed, continuous-looking left bar while removing the accent color
+                                item.style.borderLeft = 'none';
+                                item.style.boxShadow = 'inset 6px 0 0 0 #475569';
+                                // Ensure the left corners preserve the rounded shape so the stripe looks closed
+                                item.style.borderTopLeftRadius = '12px';
+                                item.style.borderBottomLeftRadius = '12px';
+                                // Make sure overflow doesn't clip the rounded corners
+                                item.style.overflow = 'hidden';
+                            } catch (e) {
+                                // ignore styling errors
+                            }
                         }
 
                         // Use authoritative count from server response

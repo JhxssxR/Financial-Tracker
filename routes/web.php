@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('settings.currency');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     

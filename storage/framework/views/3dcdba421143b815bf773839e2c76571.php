@@ -115,7 +115,7 @@
 								$statusBg = 'rgba(245, 158, 11, 0.15)';
 								$statusColor = '#f59e0b';
 							} elseif ($budget->percentage > 75) {
-								$statusText = 'Warning';
+								$statusText = 'Near Limit';
 								$statusBg = 'rgba(245, 158, 11, 0.15)';
 								$statusColor = '#f59e0b';
 							}
@@ -458,6 +458,19 @@
 		.then(response => response.json())
 		.then(data => {
 			if (data.success) {
+				// If server returned notifications payload, broadcast it so other tabs update immediately
+				if (data.notifications) {
+					try {
+						localStorage.setItem('notifications:latest', JSON.stringify({ ts: Date.now(), payload: data.notifications }));
+						if (typeof BroadcastChannel !== 'undefined') {
+							const nb = new BroadcastChannel('notifications-updates');
+							nb.postMessage(data.notifications);
+							nb.close();
+						}
+					} catch (e) {
+						console.error('Budgets: Error broadcasting notification', e);
+					}
+				}
 				closeBudgetModal();
 				window.location.reload();
 			} else {

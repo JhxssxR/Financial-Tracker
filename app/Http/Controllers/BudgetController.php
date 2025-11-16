@@ -45,38 +45,9 @@ class BudgetController extends Controller
             $budget->is_expired = $daysRemaining < 0;
         }
 
-        // Create notifications for budgets that are in warning/critical/over states.
-        // Use firstOrCreate to avoid duplicate notifications for the same budget/title.
-        foreach ($budgets as $budget) {
-            $percentage = $budget->percentage;
-            $categoryName = $budget->category->name ?? $budget->name;
-
-            if ($percentage > 75) {
-                if ($percentage > 100) {
-                    $title = "Budget Over: {$categoryName}";
-                    $message = "Your {$categoryName} budget is over by " . number_format($percentage, 0) . "% (spent: " . number_format($budget->spent, 2) . ").";
-                } elseif ($percentage > 90) {
-                    $title = "Budget Critical: {$categoryName}";
-                    $message = "Your {$categoryName} budget is critical at " . number_format($percentage, 0) . "% used.";
-                } else {
-                    $title = "Budget Warning: {$categoryName}";
-                    $message = "Your {$categoryName} budget is at " . number_format($percentage, 0) . "% used.";
-                }
-
-                // Avoid creating exact duplicate notifications with same title for the user
-                Notification::firstOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'type' => 'budget',
-                        'title' => $title,
-                    ],
-                    [
-                        'message' => $message,
-                        'is_read' => false,
-                    ]
-                );
-            }
-        }
+        // NOTE: Notification creation is handled at the moment budgets are created/updated
+        // or when transactions are added. Avoid creating notifications here on view render
+        // to prevent duplicates when the page is visited.
         
         // Calculate summary totals
         $totalBudgeted = $budgets->sum('amount');
@@ -110,14 +81,74 @@ class BudgetController extends Controller
         
         $validated['user_id'] = Auth::id();
         $validated['spent'] = 0;
-        
+
         $budget = Budget::create($validated);
-        
-        return response()->json([
+
+        // After creating a budget, compute actual spent from existing transactions
+        $spent = Transaction::where('user_id', Auth::id())
+            ->where('category_id', $budget->category_id)
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
+            ->sum('amount');
+
+        $budget->spent = $spent;
+        $budget->save();
+
+        // Determine if we need to create a notification (retroactive)
+        $newPercent = $budget->amount > 0 ? ($budget->spent / $budget->amount) * 100 : 0;
+        $notificationsPayload = null;
+
+        if ($newPercent > 75) {
+            $categoryName = $budget->category->name ?? $budget->name;
+
+            if ($newPercent > 100) {
+                $title = "Budget Over: {$categoryName}";
+                $message = "Your {$categoryName} budget is over by " . number_format($newPercent - 100, 0) . "% (spent: " . number_format($budget->spent, 2) . ").";
+            } elseif ($newPercent > 90) {
+                $title = "Budget Critical: {$categoryName}";
+                $message = "Your {$categoryName} budget is critical at " . number_format($newPercent, 0) . "% used.";
+            } else {
+                $title = "Budget Warning: {$categoryName}";
+                $message = "Your {$categoryName} budget is at " . number_format($newPercent, 0) . "% used.";
+            }
+
+            $notif = Notification::firstOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'title' => $title,
+                ],
+                [
+                    'type' => 'budget',
+                    'message' => $message,
+                    'is_read' => false,
+                ]
+            );
+
+            $newCount = Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+            $latest = Notification::where('user_id', Auth::id())->where('is_read', false)->latest('created_at')->first();
+
+            $notificationsPayload = [
+                'newCount' => $newCount,
+                'latestUnread' => $latest ? [
+                    'id' => $latest->id,
+                    'title' => $latest->title,
+                    'message' => $latest->message,
+                    'created_at' => $latest->created_at->toDateTimeString(),
+                ] : null,
+            ];
+        }
+
+        $response = [
             'success' => true,
             'message' => 'Budget created successfully!',
-            'budget' => $budget
-        ]);
+            'budget' => $budget,
+        ];
+
+        if ($notificationsPayload) {
+            $response['notifications'] = $notificationsPayload;
+        }
+
+        return response()->json($response);
     }
     
     public function update(Request $request, $id)
@@ -134,12 +165,73 @@ class BudgetController extends Controller
         ]);
         
         $budget->update($validated);
-        
-        return response()->json([
+
+        // Recalculate spent after update (in case dates or category changed)
+        $spent = Transaction::where('user_id', Auth::id())
+            ->where('category_id', $budget->category_id)
+            ->where('type', 'expense')
+            ->whereBetween('transaction_date', [$budget->start_date, $budget->end_date])
+            ->sum('amount');
+
+        $oldPercent = $budget->amount > 0 ? (($budget->spent ?? 0) / $budget->amount) * 100 : 0;
+        $budget->spent = $spent;
+        $budget->save();
+
+        $newPercent = $budget->amount > 0 ? ($budget->spent / $budget->amount) * 100 : 0;
+        $notificationsPayload = null;
+
+        // Create notification only if crossing thresholds (retroactive on update)
+        if (($oldPercent <= 75 && $newPercent > 75) || ($oldPercent <= 90 && $newPercent > 90) || ($oldPercent <= 100 && $newPercent > 100)) {
+            $categoryName = $budget->category->name ?? $budget->name;
+
+            if ($newPercent > 100) {
+                $title = "Budget Over: {$categoryName}";
+                $message = "Your {$categoryName} budget is over by " . number_format($newPercent - 100, 0) . "% (spent: " . number_format($budget->spent, 2) . ").";
+            } elseif ($newPercent > 90) {
+                $title = "Budget Critical: {$categoryName}";
+                $message = "Your {$categoryName} budget is critical at " . number_format($newPercent, 0) . "% used.";
+            } else {
+                $title = "Budget Warning: {$categoryName}";
+                $message = "Your {$categoryName} budget is at " . number_format($newPercent, 0) . "% used.";
+            }
+
+            $notif = Notification::firstOrCreate(
+                [
+                    'user_id' => Auth::id(),
+                    'title' => $title,
+                ],
+                [
+                    'type' => 'budget',
+                    'message' => $message,
+                    'is_read' => false,
+                ]
+            );
+
+            $newCount = Notification::where('user_id', Auth::id())->where('is_read', false)->count();
+            $latest = Notification::where('user_id', Auth::id())->where('is_read', false)->latest('created_at')->first();
+
+            $notificationsPayload = [
+                'newCount' => $newCount,
+                'latestUnread' => $latest ? [
+                    'id' => $latest->id,
+                    'title' => $latest->title,
+                    'message' => $latest->message,
+                    'created_at' => $latest->created_at->toDateTimeString(),
+                ] : null,
+            ];
+        }
+
+        $response = [
             'success' => true,
             'message' => 'Budget updated successfully!',
-            'budget' => $budget
-        ]);
+            'budget' => $budget,
+        ];
+
+        if ($notificationsPayload) {
+            $response['notifications'] = $notificationsPayload;
+        }
+
+        return response()->json($response);
     }
     
     public function destroy($id)

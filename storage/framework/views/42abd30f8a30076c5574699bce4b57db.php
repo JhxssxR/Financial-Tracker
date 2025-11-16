@@ -201,6 +201,81 @@
                     dropdown.style.display = 'none';
                 }
             });
+
+            // Real-time notification badge updates (listens to localStorage + BroadcastChannel)
+            (function() {
+                function applyNotifPayload(payload) {
+                    if (!payload) return;
+                    const countEl = document.getElementById('nav-notif-count');
+                    if (!countEl) return;
+
+                    // payload may arrive as { newCount, latestUnread } or wrapped as { payload: { newCount... } }
+                    const p = payload.payload ? payload.payload : payload;
+                    const newCount = p && typeof p.newCount !== 'undefined' ? p.newCount : 0;
+
+                    if (newCount > 0) {
+                        countEl.textContent = newCount;
+                        countEl.style.display = 'flex';
+                    } else {
+                        countEl.style.display = 'none';
+                    }
+                }
+
+                // Initialize from localStorage
+                try {
+                    const raw = localStorage.getItem('notifications:latest');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        applyNotifPayload(parsed);
+                    }
+                } catch (e) {
+                    // ignore parse errors
+                }
+
+                // Also fetch authoritative unread count from server (in case notifications
+                // were created while this page wasn't open). This makes the badge show
+                // correctly on pages that didn't receive the storage/broadcast events.
+                try {
+                    <?php
+                        try {
+                            $notifCountUrl = route('notifications.unreadCount');
+                        } catch (\Throwable $e) {
+                            $notifCountUrl = url('/notifications/unread-count');
+                        }
+                    ?>
+                    fetch('<?php echo e($notifCountUrl); ?>', { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.ok ? r.json() : null)
+                        .then(json => {
+                            if (json && typeof json.newCount !== 'undefined') {
+                                applyNotifPayload(json);
+                            }
+                        }).catch(() => {});
+                } catch (e) {
+                    // ignore
+                }
+
+                // Storage event (cross-tab)
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'notifications:latest') {
+                        try {
+                            const parsed = JSON.parse(e.newValue);
+                            applyNotifPayload(parsed);
+                        } catch (err) {}
+                    }
+                });
+
+                // BroadcastChannel for immediate updates
+                if (typeof BroadcastChannel !== 'undefined') {
+                    try {
+                        const bc = new BroadcastChannel('notifications-updates');
+                        bc.onmessage = function(ev) {
+                            applyNotifPayload(ev.data);
+                        };
+                    } catch (err) {
+                        // ignore
+                    }
+                }
+            })();
         </script>
     <?php endif; ?>
 

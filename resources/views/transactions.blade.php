@@ -263,8 +263,6 @@
 <script src="{{ asset('js/transactions.js') }}" defer></script>
 @endpush
 <script>
-    // continue: filterTransactions definition used when script loads (kept minimal)
-    // This inline section intentionally left blank; core logic moved to public/js/transactions.js
-    // Exposed functions: openTransactionModal, closeTransactionModal, selectType, submitTransaction, filterTransactions, clearFilters
+   
 
 @endsection

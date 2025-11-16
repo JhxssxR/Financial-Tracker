@@ -121,6 +121,22 @@
                         bc.postMessage({ totals: data.totals });
                         bc.close();
                     }
+
+                    // If server returned notifications (e.g., budget threshold crossed), persist and broadcast them
+                    if (data.notifications) {
+                        try {
+                            const notifPayload = data.notifications;
+                            localStorage.setItem('notifications:latest', JSON.stringify({ ts: Date.now(), payload: notifPayload }));
+
+                            if (typeof BroadcastChannel !== 'undefined') {
+                                const nb = new BroadcastChannel('notifications-updates');
+                                nb.postMessage(notifPayload);
+                                nb.close();
+                            }
+                        } catch (ne) {
+                            console.error('Transactions: Error broadcasting notifications', ne);
+                        }
+                    }
                 } catch (e) {
                     console.error('Transactions: Error broadcasting update', e);
                 }
