@@ -568,7 +568,13 @@
 			}
 		}, 100);
 	});
-</script>
+<?php $__env->startPush('scripts'); ?>
+	<script>
+		window.__BUDGETS = <?php echo json_encode($budgets->items(), 15, 512) ?>;
+	</script>
+	<script src="<?php echo e(asset('js/budgets.js')); ?>"></script>
+<?php $__env->stopPush(); ?>
+
 <?php $__env->stopSection(); ?>
 
 <?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/budgets.blade.php ENDPATH**/ ?>

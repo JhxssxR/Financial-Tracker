@@ -143,8 +143,14 @@
                             try {
                                 // Remove the CSS border and draw an inset left stripe (box-shadow)
                                 // This preserves a closed, continuous-looking left bar while removing the accent color
-                                item.style.borderLeft = 'none';
-                                item.style.boxShadow = 'inset 6px 0 0 0 #475569';
+                                // Preserve the actual left border color (so the read-state stripe matches the original)
+                                // Remove the left accent entirely for read items
+                                try {
+                                    item.style.borderLeft = 'none';
+                                    item.style.boxShadow = 'none';
+                                } catch (e) {
+                                    // ignore styling errors
+                                }
                                 // Ensure the left corners preserve the rounded shape so the stripe looks closed
                                 item.style.borderTopLeftRadius = '12px';
                                 item.style.borderBottomLeftRadius = '12px';
@@ -186,6 +192,15 @@
                         const resp = await sendRequest(url, 'DELETE');
                         const item = document.querySelector(`.notif-item[data-id='${id}']`);
                         if (item) item.remove();
+
+                        // If there are no more notifications in the DOM, reload so the
+                        // server-rendered empty state is shown ("No notifications to display").
+                        try {
+                            if (document.querySelectorAll('.notif-item').length === 0) {
+                                // Small timeout to allow the toast to show briefly
+                                setTimeout(() => location.reload(), 250);
+                            }
+                        } catch (e) {}
 
                         const next = typeof resp.newCount === 'number' ? resp.newCount : null;
                         if (next !== null) {
@@ -230,11 +245,16 @@
                             const checkBtn = item.querySelector('.notif-action[data-action="read"]');
                             if (checkBtn) checkBtn.style.display = 'none';
                             try {
-                                item.style.borderLeft = 'none';
-                                item.style.boxShadow = 'inset 6px 0 0 0 #475569';
-                                item.style.borderTopLeftRadius = '12px';
-                                item.style.borderBottomLeftRadius = '12px';
-                                item.style.overflow = 'hidden';
+                                // Preserve each item's left border color before removing it
+                                let leftColor = '#475569';
+                                try {
+                                    // Remove left accent for all items when marking all as read
+                                    item.style.borderLeft = 'none';
+                                    item.style.boxShadow = 'none';
+                                    item.style.borderTopLeftRadius = '12px';
+                                    item.style.borderBottomLeftRadius = '12px';
+                                    item.style.overflow = 'hidden';
+                                } catch (e) {}
                             } catch (e) {}
                         });
 

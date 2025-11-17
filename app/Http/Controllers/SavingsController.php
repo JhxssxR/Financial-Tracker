@@ -13,10 +13,10 @@ class SavingsController extends Controller
     {
         $user = Auth::user();
         
-        // Get all transactions
+        // Paginate transactions (10 per page)
         $transactions = SavingsTransaction::where('user_id', $user->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
         
         // Calculate totals
         $totalDeposits = SavingsTransaction::where('user_id', $user->id)

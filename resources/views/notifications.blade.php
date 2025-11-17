@@ -29,56 +29,72 @@
             <h2 style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
             
             @forelse($notifications as $notification)
-            @php
-                // Determine left border color and badge text for visual emphasis
-                // Apply warning/over rules based on title keywords for all notification types
-                $leftColor = '#475569'; // default muted
-                $statusBadge = null;
-                $priorityBadge = null;
+                @php
+                    // default left accent color (can be customized per-notification)
+                    $leftColor = '#475569';
+                    $statusBadge = null;
+                    $priorityBadge = null;
 
-                @push('scripts')
-                    <script src="{{ asset('js/notifications.js') }}"></script>
-                @endpush
+                    // Color accents by notification type or message text
+                    $type = isset($notification->type) ? strtolower($notification->type) : '';
+                    $title = isset($notification->title) ? strtolower($notification->title) : '';
+                    $msg = isset($notification->message) ? strtolower($notification->message) : '';
+
+                    // Withdrawals (match type OR title OR message for common verbs)
+                    if (
+                        strpos($type, 'withdraw') !== false || strpos($type, 'withdrawal') !== false ||
+                        strpos($title, 'withdraw') !== false || strpos($title, 'withdrew') !== false ||
+                        strpos($msg, 'withdraw') !== false || strpos($msg, 'withdrew') !== false ||
+                        strpos($msg, 'withdrawal') !== false
+                    ) {
+                        $leftColor = '#ef4444';
+                    }
+                    // Deposits / savings should be green (match type/title/message)
+                    elseif (
+                        strpos($type, 'saving') !== false || strpos($type, 'savings') !== false ||
+                        strpos($title, 'save') !== false || strpos($title, 'depos') !== false ||
+                        strpos($msg, 'save') !== false || strpos($msg, 'depos') !== false || strpos($msg, 'deposited') !== false
+                    ) {
+                        $leftColor = '#10b981';
+                    }
+                @endphp
+
+                <div class="card notif-item" data-id="{{ $notification->id }}" style="position:relative;padding:18px;margin-bottom:12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;opacity:{{ $notification->is_read ? '0.5' : '1' }};@if(!$notification->is_read)border-left:6px solid {{ $leftColor }};@endif">
+                    <div>
                         @if($priorityBadge)
-                            <span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;">{{ $priorityBadge }}</span>
+                            <div style="margin-bottom:8px;"><span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;">{{ $priorityBadge }}</span></div>
                         @endif
+
                         @if($statusBadge)
                             @if($statusBadge === 'Over Budget')
                                 <span style="background:#ef4444;color:#fff;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700;">{{ $statusBadge }}</span>
                             @else
-                                {{-- Near Limit pill: dark outer pill, yellow text, small yellow square with black triangle icon --}}
                                 <span style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.08);font-size:13px;font-weight:700;">
-                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;">
-                                            {{-- circular yellow icon with centered black triangle --}}
-                                            <svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;">
-                                                <path d="M12 7l-5 8h10l-5-8z" fill="#111" />
-                                            </svg>
-                                        </span>
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;"><path d="M12 7l-5 8h10l-5-8z" fill="#111"/></svg></span>
                                     {{ $statusBadge }}
                                 </span>
                             @endif
                         @endif
-                    </div>
-                    <p style="font-size:14px;margin:8px 0 0;color:#94a3b8;">{{ $notification->message }}</p>
-                    <p style="font-size:12px;margin:10px 0 0;color:#64748b;">{{ $notification->created_at->diffForHumans() }}</p>
-                </div>
-                <div style="display:flex;gap:12px;align-items:center;">
-                    {{-- action buttons: mark as read (check) and dismiss (x) --}}
-                    @if(!$notification->is_read)
-                    <button class="notif-action" data-action="read" data-id="{{ $notification->id }}" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                    @endif
-                    <button class="notif-action" data-action="delete" data-id="{{ $notification->id }}" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </button>
-                </div>
 
-                @if(!$notification->is_read)
-                {{-- floating unread dot in top-right like prototype --}}
-                <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
-                @endif
-            </div>
+                        <p style="font-size:14px;margin:8px 0 0;color:#94a3b8;">{{ $notification->message }}</p>
+                        <p style="font-size:12px;margin:10px 0 0;color:#64748b;">{{ $notification->created_at->diffForHumans() }}</p>
+                    </div>
+
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        @if(!$notification->is_read)
+                            <button class="notif-action" data-action="read" data-id="{{ $notification->id }}" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        @endif
+                        <button class="notif-action" data-action="delete" data-id="{{ $notification->id }}" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+                    </div>
+
+                    @if(!$notification->is_read)
+                        <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
+                    @endif
+                </div>
             @empty
             <!-- Empty State -->
             <div class="card" style="padding:200px 80px;text-align:center;">
@@ -90,225 +106,46 @@
                 <p class="muted" style="margin:0;font-size:16px;">No notifications to display</p>
             </div>
             @endforelse
+
+            @if(method_exists($notifications, 'hasPages') && $notifications->hasPages())
+                <style>
+                    .custom-pager{display:flex;justify-content:center;align-items:center;gap:12px;width:100%;margin-top:12px}
+                    .custom-pager .page-link{padding:10px 16px;background:#0f172a;border:1px solid #334155;border-radius:12px;color:#e2e8f0;text-decoration:none;cursor:pointer;font-size:14px;transition:all .2s}
+                    .custom-pager .page-link.disabled{opacity:0.45;color:#64748b;border-color:rgba(148,163,184,0.03);pointer-events:none}
+                    .custom-pager .page-number{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;text-decoration:none;transition:all .2s;font-weight:600}
+                    .custom-pager .page-number:hover{background:#1e293b;border-color:#10b981}
+                    .custom-pager .page-number.active{background:#10b981;color:#fff;border-color:#10b981}
+                </style>
+
+                <nav class="custom-pager" aria-label="Notifications pagination">
+                    @if($notifications->onFirstPage())
+                        <span class="page-link disabled">Previous</span>
+                    @else
+                        <a class="page-link" href="{{ $notifications->previousPageUrl() }}">Previous</a>
+                    @endif
+
+                    <div style="display:flex;gap:8px;">
+                        @foreach(range(1, $notifications->lastPage()) as $page)
+                            @if($page == $notifications->currentPage())
+                                <span class="page-number active">{{ $page }}</span>
+                            @else
+                                <a class="page-number" href="{{ $notifications->url($page) }}">{{ $page }}</a>
+                            @endif
+                        @endforeach
+                    </div>
+
+                    @if($notifications->hasMorePages())
+                        <a class="page-link" href="{{ $notifications->nextPageUrl() }}">Next</a>
+                    @else
+                        <span class="page-link disabled">Next</span>
+                    @endif
+                </nav>
+            @endif
+
         </div>
 
        
 @push('scripts')
-<script>
-    // Initialize all toggle switches
-    document.querySelectorAll('.toggle-switch').forEach(checkbox => {
-        const label = checkbox.closest('label');
-        const track = label.querySelector('.toggle-track');
-        const thumb = label.querySelector('.toggle-thumb');
-        
-        function updateToggle() {
-            if (checkbox.checked) {
-                track.style.background = '#334155';
-                thumb.style.background = '#fff';
-                thumb.style.transform = 'translateX(24px)';
-            } else {
-                track.style.background = '#1e293b';
-                thumb.style.background = '#94a3b8';
-                thumb.style.transform = 'translateX(0)';
-            }
-        }
-        
-        updateToggle();
-        checkbox.addEventListener('change', updateToggle);
-    });
-
-    // Toast notification system
-    function showToast(message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-
-        const toast = document.createElement('div');
-        const bgColor = type === 'success' ? '#059669' : '#dc2626';
-        const icon = type === 'success' 
-            ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-            : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-        
-        toast.style.cssText = `
-            background: ${bgColor};
-            color: white;
-            padding: 14px 18px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: slideIn 0.3s ease-out;
-            min-width: 280px;
-            max-width: 400px;
-        `;
-        toast.innerHTML = `
-            <div style="flex-shrink:0;">${icon}</div>
-            <div style="flex:1;font-size:14px;font-weight:500;">${message}</div>
-        `;
-
-        container.appendChild(toast);
-
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            toast.style.animation = 'slideOut 0.3s ease-in';
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
-    }
-
-    // Add animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(400px); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Notification action handlers (mark as read / dismiss)
-    (function() {
-        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-        const csrf = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
-
-        // Set the nav badge and page header to an authoritative count
-        function updateNavBadgeTo(newCount) {
-            const el = document.getElementById('nav-notif-count');
-            if (el) {
-                el.textContent = newCount > 0 ? String(newCount) : '';
-                el.style.display = newCount > 0 ? '' : 'none';
-            }
-            // Also update the page header summary (You have X unread notifications / All caught up!)
-            try {
-                const headerP = document.querySelector('h1 + p.muted');
-                if (headerP) {
-                    if (newCount > 0) {
-                        headerP.textContent = `You have ${newCount} unread notification${newCount > 1 ? 's' : ''}`;
-                    } else {
-                        headerP.textContent = 'All caught up!';
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to update header unread text', e);
-            }
-        }
-
-        async function sendRequest(url, method = 'POST') {
-            const res = await fetch(url, {
-                method,
-                headers: {
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': csrf,
-                }
-            });
-            if (!res.ok) throw new Error('Request failed');
-            return res.json();
-        }
-
-        // Confirmation dialog
-        function confirmDelete() {
-            return confirm('Are you sure you want to delete this notification? This action cannot be undone.');
-        }
-
-        document.querySelectorAll('.notif-action').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                e.preventDefault();
-                const action = btn.getAttribute('data-action');
-                const id = btn.getAttribute('data-id');
-                if (!id) return;
-
-                try {
-                    if (action === 'read') {
-                        const url = `/notifications/${id}/read`;
-                        const resp = await sendRequest(url, 'POST');
-                        // Mark notification as read (change opacity and remove unread dot)
-                        const item = document.querySelector(`.notif-item[data-id='${id}']`);
-                        if (item) {
-                            item.style.opacity = '0.5';
-                            const unreadDot = item.querySelector('.unread-dot');
-                            if (unreadDot) unreadDot.remove();
-                            // Hide the check button after marking as read
-                            const checkBtn = item.querySelector('.notif-action[data-action="read"]');
-                            if (checkBtn) checkBtn.style.display = 'none';
-                            // Remove the colored left border to indicate it's no longer active
-                            try {
-                                // Remove the CSS border and draw an inset left stripe (box-shadow)
-                                // This preserves a closed, continuous-looking left bar while removing the accent color
-                                item.style.borderLeft = 'none';
-                                item.style.boxShadow = 'inset 6px 0 0 0 #475569';
-                                // Ensure the left corners preserve the rounded shape so the stripe looks closed
-                                item.style.borderTopLeftRadius = '12px';
-                                item.style.borderBottomLeftRadius = '12px';
-                                // Make sure overflow doesn't clip the rounded corners
-                                item.style.overflow = 'hidden';
-                            } catch (e) {
-                                // ignore styling errors
-                            }
-                        }
-
-                        // Use authoritative count from server response
-                        const next = typeof resp.newCount === 'number' ? resp.newCount : null;
-                        if (next !== null) {
-                            updateNavBadgeTo(next);
-                        }
-                        showToast('Notification marked as read', 'success');
-
-                        // Broadcast authoritative update to other tabs (so dashboard can update)
-                        try {
-                            const payload = { ts: Date.now(), action: 'read', newCount: next, latestUnread: resp.latestUnread || null };
-                            localStorage.setItem('notifications:latest', JSON.stringify(payload));
-                            if (typeof BroadcastChannel !== 'undefined') {
-                                const bc = new BroadcastChannel('notifications-updates');
-                                bc.postMessage(payload);
-                                bc.close();
-                            }
-                        } catch (e) {
-                            console.error('Notification broadcast failed', e);
-                        }
-                    }
-
-                    if (action === 'delete') {
-                        // Show confirmation dialog
-                        if (!confirmDelete()) {
-                            return; // User cancelled
-                        }
-
-                        const url = `/notifications/${id}`;
-                        const resp = await sendRequest(url, 'DELETE');
-                        const item = document.querySelector(`.notif-item[data-id='${id}']`);
-                        if (item) item.remove();
-
-                        const next = typeof resp.newCount === 'number' ? resp.newCount : null;
-                        if (next !== null) {
-                            updateNavBadgeTo(next);
-                        }
-
-                        showToast('Notification deleted successfully', 'success');
-
-                        // Broadcast authoritative update to other tabs
-                        try {
-                            const payload = { ts: Date.now(), action: 'delete', newCount: next, latestUnread: resp.latestUnread || null };
-                            localStorage.setItem('notifications:latest', JSON.stringify(payload));
-                            if (typeof BroadcastChannel !== 'undefined') {
-                                const bc = new BroadcastChannel('notifications-updates');
-                                bc.postMessage(payload);
-                                bc.close();
-                            }
-                        } catch (e) {
-                            console.error('Notification broadcast failed', e);
-                        }
-                    }
-                } catch (err) {
-                    console.error('Notification action failed', err);
-                    showToast('Failed to process notification. Please try again.', 'error');
-                }
-            });
-        });
-    })();
-</script>
+    <script src="{{ asset('js/notifications.js') }}"></script>
 @endpush
 @endsection

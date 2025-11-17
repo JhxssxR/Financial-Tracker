@@ -73,6 +73,43 @@
 			</tbody>
 		</table>
 	</div>
+		<!-- Pagination -->
+		@if(method_exists($transactions, 'hasPages') && $transactions->hasPages())
+			<style>
+				.custom-pager{display:flex;justify-content:center;align-items:center;gap:12px;width:100%;margin-top:12px}
+				.custom-pager .page-link{padding:10px 16px;background:#0f172a;border:1px solid #334155;border-radius:12px;color:#e2e8f0;text-decoration:none;cursor:pointer;font-size:14px;transition:all .2s}
+				.custom-pager .page-link.disabled{opacity:0.45;color:#64748b;border-color:rgba(148,163,184,0.03);pointer-events:none}
+				.custom-pager .page-number{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;text-decoration:none;transition:all .2s;font-weight:600}
+				.custom-pager .page-number:hover{background:#1e293b;border-color:#10b981}
+				.custom-pager .page-number.active{background:#10b981;color:#fff;border-color:#10b981}
+			</style>
+
+			<nav class="custom-pager" aria-label="Savings pagination">
+				@if($transactions->onFirstPage())
+					<span class="page-link disabled">Previous</span>
+				@else
+					<a class="page-link" href="{{ $transactions->previousPageUrl() }}">Previous</a>
+				@endif
+
+				<div style="display:flex;gap:8px;">
+					@foreach(range(1, $transactions->lastPage()) as $page)
+						@if($page == $transactions->currentPage())
+							<span class="page-number active">{{ $page }}</span>
+						@else
+							<a class="page-number" href="{{ $transactions->url($page) }}">{{ $page }}</a>
+						@endif
+					@endforeach
+				</div>
+
+				@if($transactions->hasMorePages())
+					<a class="page-link" href="{{ $transactions->nextPageUrl() }}">Next</a>
+				@else
+					<span class="page-link disabled">Next</span>
+				@endif
+			</nav>
+
+		@endif
+
 </section>
 
 <!-- Deposit Modal -->

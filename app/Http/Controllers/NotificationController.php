@@ -13,13 +13,15 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        // Only show unread notifications in the main list (matches the UI: recent unread)
+        // Show all notifications (read + unread) in the main list (paginated)
         $notifications = Notification::where('user_id', Auth::id())
-            ->where('is_read', false)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(5);
 
-        $unreadCount = $notifications->count();
+        // Keep an authoritative unread count separate from the paginated results
+        $unreadCount = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
 
         return view('notifications', compact('notifications', 'unreadCount'));
     }
@@ -69,11 +71,10 @@ class NotificationController extends Controller
             return response()->json(['success' => false], 403);
         }
 
-        // Instead of permanently deleting the notification, mark it as read/dismissed.
-        // This prevents server-generated budget notifications from being recreated
-        // if the budgets page runs the creation logic again.
-        $notification->is_read = true;
-        $notification->save();
+        // Permanently delete the notification so it will not reappear after refresh.
+        // If you prefer a soft-dismiss behavior (mark-as-read) instead, revert to setting
+        // `is_read = true` here. Deleting removes the row from the DB.
+        $notification->delete();
 
         // Return authoritative unread count and latest unread
         $unreadCount = Notification::where('user_id', Auth::id())
