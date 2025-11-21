@@ -37,6 +37,14 @@ class Budget extends Model
         return $this->belongsTo(Category::class);
     }
 
+    /**
+     * Scope budgets for a given user id.
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
     public function getPercentageUsedAttribute()
     {
         return $this->amount > 0 ? ($this->spent / $this->amount) * 100 : 0;

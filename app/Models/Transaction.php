@@ -32,4 +32,12 @@ class Transaction extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    /**
+     * Scope transactions for a given user id.
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
 }

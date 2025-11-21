@@ -28,8 +28,8 @@ class TransactionController extends Controller
         $totalExpenses = $allTransactions->where('type', 'expense')->sum('amount');
         $totalTransactions = $allTransactions->count();
         
-        // Get categories for the dropdown and remove duplicate names per type
-        $categories = Category::all()->groupBy('type')->map(function ($group) {
+        // Get categories for the dropdown (global + user-specific) and remove duplicate names per type
+        $categories = Category::forUser($user->id)->get()->groupBy('type')->map(function ($group) {
             return $group->unique('name')->values();
         });
         

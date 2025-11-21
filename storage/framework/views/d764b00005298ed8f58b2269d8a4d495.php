@@ -57,114 +57,45 @@
                     ) {
                         $leftColor = '#10b981';
                     }
-
-                    // Detect special budget statuses
-                    $isNearLimit = false;
-                    $isOverBudget = false;
-                    if ((strpos($title, 'near') !== false && strpos($title, 'limit') !== false) || (strpos($msg, 'near') !== false && strpos($msg, 'limit') !== false)) {
-                        $isNearLimit = true;
-                        $leftColor = '#f59e0b';
-                        $statusBadge = $statusBadge ?? 'Near Limit';
-                        $priorityBadge = $priorityBadge ?? 'medium';
-                    }
-                    if ((strpos($title, 'exceed') !== false && strpos($title, 'budget') !== false) || (strpos($msg, 'exceed') !== false && strpos($msg, 'budget') !== false) || strpos($msg, 'over budget') !== false || strpos($title, 'over budget') !== false) {
-                        $isOverBudget = true;
-                        $leftColor = '#ef4444';
-                        $statusBadge = 'Over Budget';
-                        $priorityBadge = $priorityBadge ?? 'high';
-                    }
                 ?>
 
-                <?php if($isOverBudget || $isNearLimit): ?>
-                    <div class="card notif-item notif-critical" data-id="<?php echo e($notification->id); ?>" style="position:relative;padding:20px;margin-bottom:12px;border-radius:12px;display:flex;gap:16px;align-items:flex-start;opacity:<?php echo e($notification->is_read ? '0.5' : '1'); ?>;<?php if(!$notification->is_read): ?>border-left:6px solid <?php echo e($leftColor); ?>;<?php endif; ?>">
-                        <div style="flex-shrink:0;display:flex;align-items:center;justify-content:center;width:64px;height:64px;">
-                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:<?php echo e($isOverBudget ? 'rgba(239,68,68,0.06)' : 'rgba(245,158,11,0.06)'); ?>;">
-                                <?php if($isOverBudget): ?>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h17.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="rgba(239,68,68,0.02)"/><path d="M12 9v4" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h.01" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                <?php else: ?>
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h17.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="rgba(245,158,11,0.02)"/><path d="M12 9v4" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17h.01" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div style="flex:1;">
-                            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
-                                <div style="min-width:0;">
-                                    <h3 style="margin:0;font-size:20px;font-weight:700;color:#e6eef8;"><?php echo e($notification->title); ?></h3>
-                                    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                                        <?php if($priorityBadge): ?>
-                                            <span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;"><?php echo e($priorityBadge); ?></span>
-                                        <?php endif; ?>
-
-                                        <?php if($statusBadge): ?>
-                                            <span style="display:inline-flex;align-items:center;gap:8px;background:<?php echo e($isOverBudget ? '#58151a' : '#2a3238'); ?>;color:<?php echo e($isOverBudget ? '#fecaca' : '#f59e0b'); ?>;padding:6px 10px;border-radius:10px;border:1px solid rgba(0,0,0,0.06);font-size:13px;font-weight:700;">
-                                                <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:<?php echo e($isOverBudget ? '#ef4444' : '#f59e0b'); ?>;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;"><?php if($isOverBudget): ?>🔔<?php else: ?>⚠️<?php endif; ?></span>
-                                                <?php echo e($statusBadge); ?>
-
-                                            </span>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-
-                                <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
-                                    <?php if(!$notification->is_read): ?>
-                                        <button class="notif-action" data-action="read" data-id="<?php echo e($notification->id); ?>" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;font-size:18px;">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                        </button>
-                                    <?php endif; ?>
-                                    <button class="notif-action" data-action="delete" data-id="<?php echo e($notification->id); ?>" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;font-size:18px;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <p style="font-size:16px;color:#9fb0c4;margin:12px 0 0;"><?php echo e($notification->message); ?></p>
-                            <p style="font-size:12px;margin:10px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
-                        </div>
-
-                        <?php if(!$notification->is_read): ?>
-                            <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
+                <div class="card notif-item" data-id="<?php echo e($notification->id); ?>" style="position:relative;padding:18px;margin-bottom:12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;opacity:<?php echo e($notification->is_read ? '0.5' : '1'); ?>;<?php if(!$notification->is_read): ?>border-left:6px solid <?php echo e($leftColor); ?>;<?php endif; ?>">
+                    <div>
+                        <?php if($priorityBadge): ?>
+                            <div style="margin-bottom:8px;"><span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;"><?php echo e($priorityBadge); ?></span></div>
                         <?php endif; ?>
+
+                        <?php if($statusBadge): ?>
+                            <?php if($statusBadge === 'Over Budget'): ?>
+                                <span style="background:#ef4444;color:#fff;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700;"><?php echo e($statusBadge); ?></span>
+                            <?php else: ?>
+                                <span style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.08);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;"><path d="M12 7l-5 8h10l-5-8z" fill="#111"/></svg></span>
+                                    <?php echo e($statusBadge); ?>
+
+                                </span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                        <p style="font-size:14px;margin:8px 0 0;color:#94a3b8;"><?php echo e($notification->message); ?></p>
+                        <p style="font-size:12px;margin:10px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
                     </div>
-                <?php else: ?>
-                    <div class="card notif-item" data-id="<?php echo e($notification->id); ?>" style="position:relative;padding:18px;margin-bottom:12px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;opacity:<?php echo e($notification->is_read ? '0.5' : '1'); ?>;<?php if(!$notification->is_read): ?>border-left:6px solid <?php echo e($leftColor); ?>;<?php endif; ?>">
-                        <div>
-                            <?php if($priorityBadge): ?>
-                                <div style="margin-bottom:8px;"><span style="background:#2b2830;color:#d6c9b1;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700;text-transform:lowercase;"><?php echo e($priorityBadge); ?></span></div>
-                            <?php endif; ?>
 
-                            <?php if($statusBadge): ?>
-                                <?php if($statusBadge === 'Over Budget'): ?>
-                                    <span style="background:#ef4444;color:#fff;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700;"><?php echo e($statusBadge); ?></span>
-                                <?php else: ?>
-                                    <span style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.08);font-size:13px;font-weight:700;">
-                                        <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;"><path d="M12 7l-5 8h10l-5-8z" fill="#111"/></svg></span>
-                                        <?php echo e($statusBadge); ?>
-
-                                    </span>
-                                <?php endif; ?>
-                            <?php endif; ?>
-
-                            <p style="font-size:14px;margin:8px 0 0;color:#94a3b8;"><?php echo e($notification->message); ?></p>
-                            <p style="font-size:12px;margin:10px 0 0;color:#64748b;"><?php echo e($notification->created_at->diffForHumans()); ?></p>
-                        </div>
-
-                        <div style="display:flex;gap:12px;align-items:center;">
-                            <?php if(!$notification->is_read): ?>
-                                <button class="notif-action" data-action="read" data-id="<?php echo e($notification->id); ?>" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button>
-                            <?php endif; ?>
-                            <button class="notif-action" data-action="delete" data-id="<?php echo e($notification->id); ?>" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <div style="display:flex;gap:12px;align-items:center;">
+                        <?php if(!$notification->is_read): ?>
+                            <button class="notif-action" data-action="read" data-id="<?php echo e($notification->id); ?>" title="Mark as read" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#e2e8f0;transition:all .15s;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M20 6L9 17l-5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                             </button>
-                        </div>
-
-                        <?php if(!$notification->is_read): ?>
-                            <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
                         <?php endif; ?>
+                        <button class="notif-action" data-action="delete" data-id="<?php echo e($notification->id); ?>" title="Dismiss" style="background:transparent;border:0;padding:6px;border-radius:6px;cursor:pointer;color:#cbd5e1;transition:all .15s;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;"><path d="M18 6L6 18M6 6l12 12" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
                     </div>
-                <?php endif; ?>
+
+                    <?php if(!$notification->is_read): ?>
+                        <div class="unread-dot" style="position:absolute;top:14px;right:18px;width:8px;height:8px;background:#3b82f6;border-radius:50%;box-shadow:0 0 0 4px rgba(59,130,246,0.06);"></div>
+                    <?php endif; ?>
+                </div>
             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
             <!-- Empty State -->
             <div class="card" style="padding:200px 80px;text-align:center;">

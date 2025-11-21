@@ -31,6 +31,14 @@ class Saving extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Scope savings for a given user id.
+     */
+    public function scopeForUser($query, $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
     public function getProgressPercentageAttribute()
     {
         return $this->target_amount > 0 ? ($this->current_amount / $this->target_amount) * 100 : 0;

@@ -55,8 +55,10 @@ class BudgetController extends Controller
         $totalRemaining = $totalBudgeted - $totalSpent;
         $spentPercentage = $totalBudgeted > 0 ? ($totalSpent / $totalBudgeted) * 100 : 0;
         
-        // Get categories for dropdown (expense categories only)
-        $categories = Category::where('type', 'expense')->get();
+        // Get categories for dropdown (expense categories only) - include global + user-specific
+        $categories = Category::where('type', 'expense')
+            ->forUser($user->id)
+            ->get();
         
         return view('budgets', compact(
             'budgets',

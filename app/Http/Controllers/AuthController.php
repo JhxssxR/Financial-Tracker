@@ -69,11 +69,26 @@ class AuthController extends Controller
             'terms' => 'required|accepted',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        // Clone default/global categories for the new user so they have their own editable set.
+        try {
+            \App\Models\Category::whereNull('user_id')->get()->each(function ($cat) use ($user) {
+                \App\Models\Category::create([
+                    'user_id' => $user->id,
+                    'name' => $cat->name,
+                    'type' => $cat->type,
+                    'icon' => $cat->icon,
+                    'color' => $cat->color,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            // Non-fatal: if cloning fails, the app will still work because global categories exist.
+        }
 
         return redirect()->route('login')->with('success', 'Registration successful! Please log in with your credentials.');
     }
