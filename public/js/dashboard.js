@@ -4,7 +4,7 @@
         const monthlyData = window.__DASHBOARD_DATA || { months: [], income: [], expenses: [] };
         const ctx = document.getElementById('trendChart');
         if (ctx && window.Chart) {
-            new Chart(ctx, {
+            window.__DASHBOARD_CHART = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: monthlyData.months,
@@ -39,7 +39,7 @@
                 },
                 options: {
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             display: true,
@@ -170,7 +170,7 @@
         console.log('Dashboard: BroadcastChannel not supported');
     }
 
-    // Listen for notification updates (read/delete) so we can update banner and "All caught up!"
+    
     function handleNotificationUpdate(payload) {
         try {
             console.log('Dashboard: notification update', payload);
@@ -179,7 +179,7 @@
 
             const newCount = typeof payload.newCount === 'number' ? payload.newCount : null;
             if (newCount === 0) {
-                // Replace left side with header and show All caught up!
+                
                 area.innerHTML = `
                     <div style="display:flex;align-items:center;gap:12px;">
                         <div style="font-weight:700;font-size:16px;color:#e2e8f0;">Recent Transactions</div>
@@ -191,7 +191,7 @@
             }
 
             if (typeof newCount === 'number' && newCount > 0) {
-                // Update view link count on the right
+               
                 const right = area.querySelector('div[style*="text-align:right"]');
                 if (right) {
                     right.innerHTML = `<a href="/notifications" style="background:#ef4444;color:white;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:700;font-size:13px;">View (${newCount})</a>`;
@@ -202,13 +202,13 @@
         }
     }
 
-    // Page load animation for savings card (same as income card)
+    
     document.addEventListener('DOMContentLoaded', function() {
         const savingsEl = document.getElementById('savingsTotal');
         const incomeEl = document.getElementById('incomeTotal');
         const expensesEl = document.getElementById('expensesTotal');
 
-        // Animate on page load
+        
         setTimeout(() => {
             if (savingsEl) {
                 savingsEl.style.transition = 'all 0.3s ease';
@@ -227,5 +227,16 @@
             }
         }, 100);
     });
+
+   
+    function safeResizeDashboardChart() {
+        try {
+            if (window.__DASHBOARD_CHART && typeof window.__DASHBOARD_CHART.resize === 'function') window.__DASHBOARD_CHART.resize();
+        } catch (e) { }
+    }
+
+    let __dResizeTimer = null;
+    window.addEventListener('resize', function() { clearTimeout(__dResizeTimer); __dResizeTimer = setTimeout(safeResizeDashboardChart, 150); });
+    window.addEventListener('orientationchange', function() { setTimeout(safeResizeDashboardChart, 300); });
 
 })();

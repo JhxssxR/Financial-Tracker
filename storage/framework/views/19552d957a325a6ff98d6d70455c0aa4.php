@@ -54,7 +54,7 @@
         </div>
 
         <!-- Currency Grid -->
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0px;">
+        <div class="currency-grid" style="display:grid;gap:12px;">
             <?php
                 $userCurrency = Auth::user()->currency_code ?? 'EUR';
                 $allCurrencies = [
@@ -117,7 +117,7 @@
         </div>
 
         <!-- Email Alerts -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
+        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
             <div>
                 <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Email Alerts</div>
                 <div class="muted" style="font-size:13px;">Receive alerts via email</div>
@@ -130,7 +130,7 @@
         </div>
 
         <!-- Budget Alerts -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
+        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
             <div>
                 <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Budget Alerts</div>
                 <div class="muted" style="font-size:13px;">Get notified when approaching budget limits</div>
@@ -143,7 +143,7 @@
         </div>
 
         <!-- Transaction Alerts -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
+        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
             <div>
                 <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Transaction Alerts</div>
                 <div class="muted" style="font-size:13px;">Receive alerts for every transaction</div>
@@ -156,7 +156,7 @@
         </div>
 
         <!-- Weekly Reports -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
+        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
             <div>
                 <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Weekly Reports</div>
                 <div class="muted" style="font-size:13px;">Get weekly financial summary reports</div>
@@ -210,7 +210,7 @@
     </div>
 
     <!-- Action Buttons -->
-    <div style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
+    <div class="settings-actions" style="display:flex;justify-content:flex-end;gap:12px;margin-top:24px;">
         <button onclick="window.location.href='<?php echo e(route('dashboard')); ?>'" style="background:#374151;border:1px solid #4b5563;color:#e2e8f0;padding:12px 24px;border-radius:8px;cursor:pointer;font-weight:600;font-size:15px;transition:all .2s;" onmouseover="this.style.background='#4b5563'" onmouseout="this.style.background='#374151'">
             Cancel
         </button>
@@ -243,6 +243,36 @@
         transform: translateX(400px);
         opacity: 0;
     }
+}
+
+/* Settings responsive helpers */
+.currency-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.currency-option { box-sizing: border-box; width:100%; }
+.currency-option { transition: all .15s ease; }
+.currency-option .selected-checkmark { margin-left:8px; }
+
+/* Toggle and settings rows */
+.setting-row { display:flex; justify-content:space-between; align-items:center; }
+
+.settings-actions { display:flex; justify-content:flex-end; gap:12px; }
+
+@media (max-width: 900px) {
+    .currency-grid { grid-template-columns: 1fr; }
+}
+
+    @media (max-width: 640px) {
+    .currency-grid { grid-template-columns: 1fr; gap:10px; }
+    .currency-option { padding:12px; display:flex; align-items:center; }
+    .currency-option > div { flex:1 1 auto; }
+    .currency-option .selected-checkmark { position:absolute; right:12px; top:12px; }
+    .setting-row { flex-direction:column; align-items:flex-start; gap:8px; padding:8px 0; }
+    .setting-row label { margin-top:6px; }
+    .settings-actions { flex-direction:column-reverse; gap:10px; align-items:stretch; }
+    .settings-actions button { width:100%; }
+    /* Make current currency display stack on small screens */
+    #current-currency-display > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
+    /* Reduce card padding for small screens */
+    .card { padding:12px; }
 }
 </style>
 

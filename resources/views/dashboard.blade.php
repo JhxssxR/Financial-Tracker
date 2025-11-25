@@ -23,7 +23,9 @@
 
 <section class="card card-pad-lg stack-section">
     <div style="font-weight:700;margin-bottom:10px;">Income vs. Expenses</div>
-    <canvas id="trendChart" height="120"></canvas>
+    <div class="chart-wrap" style="min-height:320px;">
+        <canvas id="trendChart" aria-label="Income vs. Expenses" style="width:100%;height:320px;max-width:100%;"></canvas>
+    </div>
 </section>
 
 <section class="card stack-section" style="padding:0;overflow:hidden;">

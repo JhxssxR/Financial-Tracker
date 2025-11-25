@@ -262,7 +262,4 @@
 </script>
 <script src="{{ asset('js/transactions.js') }}" defer></script>
 @endpush
-<script>
-   
-
 @endsection

@@ -6,6 +6,55 @@
 
 <h1 style="font-size:28px;font-weight:700;" class="page-header">Savings Account</h1>
 
+<!-- Responsive tweaks for mobile -->
+<style>
+	/* Layout adjustments */
+	.page-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+	/* Modal and UI tweaks for small screens */
+	@media (max-width: 640px) {
+		.page-grid-3 { grid-template-columns: 1fr; }
+		.savings-actions { display:flex; flex-direction:column; gap:10px; }
+		.savings-actions .responsive-btn { width:100%; display:flex; align-items:center; justify-content:center; }
+		.card.stack-section { padding:0; }
+		.table-responsive { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+		.table-responsive table { min-width:640px; }
+
+		/* Make inputs, buttons more tappable */
+		.form-input, .btn { font-size:16px; }
+		/* Improve table touch targets */
+		table th, table td { padding:12px 10px; }
+
+		/* Modal: full-width friendly, scrollable body, stacked footer buttons */
+		.modal-overlay { padding: 12px; }
+		.modal-content {
+			/* Use a narrower modal on phones so it doesn't feel oversized */
+			width: 92%;
+			max-width: 420px;
+			margin: 10px auto;
+			border-radius: 12px;
+			box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+			max-height: calc(100vh - 40px);
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			padding: 0; /* internal sections control padding */
+		}
+		.modal-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; }
+		.modal-body { padding:10px 14px; overflow:auto; -webkit-overflow-scrolling:touch; }
+		.modal-footer { padding:10px 14px; display:flex; gap:10px; flex-direction:column; }
+		.modal-footer .btn { width:100%; }
+		.modal-close { padding:6px 8px; font-size:16px; }
+	}
+
+	@media (min-width: 641px) {
+		.page-grid-3 { display:grid; grid-template-columns: repeat(3, 1fr); }
+		/* On larger screens keep modal sizing comfortable */
+		.modal-content { max-width: 640px; }
+		.modal-footer { flex-direction:row; }
+		.modal-footer .btn { width:auto; }
+	}
+</style>
+
 <section class="page-grid-3">
 	<div class="card" style="padding:15px;">
 		<div class="muted" style="font-weight:600;">Total Balance</div>
@@ -24,14 +73,14 @@
 	</div>
 </section>
 
-<div style="display:flex;gap:10px;margin:24px 0;">
-	<button onclick="openDepositModal()" class="card" style="padding:10px 12px;background:#059669;border-color:#059669;display:flex;align-items:center;gap:6px;cursor:pointer;">
+<div class="savings-actions" style="margin:24px 0;display:flex;gap:10px;">
+	<button onclick="openDepositModal()" class="card responsive-btn" style="padding:10px 12px;background:#059669;border-color:#059669;display:flex;align-items:center;gap:6px;cursor:pointer;">
 		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M12 19V5M5 12l7 7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 		</svg>
 		Deposit Money
 	</button>
-	<button id="withdrawBtn" onclick="openWithdrawModal()" class="card" style="padding:10px 12px;background:#334155;border-color:#334155;display:flex;align-items:center;gap:6px;cursor:<?php echo e($totalBalance <= 0 ? 'not-allowed' : 'pointer'); ?>;opacity:<?php echo e($totalBalance <= 0 ? '0.5' : '1'); ?>;" <?php if($totalBalance <= 0): ?> disabled <?php endif; ?>>
+	<button id="withdrawBtn" onclick="openWithdrawModal()" class="card responsive-btn" style="padding:10px 12px;background:#334155;border-color:#334155;display:flex;align-items:center;gap:6px;cursor:<?php echo e($totalBalance <= 0 ? 'not-allowed' : 'pointer'); ?>;opacity:<?php echo e($totalBalance <= 0 ? '0.5' : '1'); ?>;" <?php if($totalBalance <= 0): ?> disabled <?php endif; ?>>
 		<svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M12 5v14M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 		</svg>
@@ -41,8 +90,8 @@
 
 <section class="card stack-section" style="padding:0;overflow:hidden;">
 	<div style="padding:16px 18px;border-bottom:1px solid #334155;font-weight:600;">Transaction History</div>
-	<div style="padding:12px 18px;">
-		<table style="width:100%;border-collapse:collapse;">
+	<div style="padding:12px 18px;" class="table-responsive">
+		<table style="width:100%;border-collapse:collapse;min-width:100%;">
 			<thead class="muted" style="font-size:12px;text-transform:uppercase;">
 				<tr>
 					<th style="text-align:left;padding:10px 8px;">Date</th>

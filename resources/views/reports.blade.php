@@ -5,6 +5,29 @@
 <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="expires" content="0" />
+<style>
+	/* Reports page responsive tweaks */
+	.reports-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px; }
+	.chart-wrap { width:100%; }
+	.chart-wrap canvas { width:100% !important; height:auto !important; max-width:100%; }
+	@media (max-width: 900px) {
+		.reports-stats { grid-template-columns:1fr !important; gap:12px; }
+	}
+	@media (max-width: 640px) {
+		.page-grid-2-1 { grid-template-columns:1fr !important; }
+		.page-header { flex-direction:column; align-items:flex-start; gap:8px; }
+		.page-header .card, .page-header a { margin-left:0; }
+		/* Make the filter select and export button smaller and touch-friendly on phones */
+		.page-header select.card, .page-header a.card {
+			padding:8px 10px !important;
+			font-size:14px !important;
+			min-width:unset !important;
+			border-radius:10px !important;
+		}
+		.page-header a.card { display:inline-flex; align-items:center; gap:8px; }
+		.page-header select.card { width:auto; }
+	}
+</style>
 @endpush
 <!-- reports-cb: {{ $cb ?? now()->timestamp }} -->
 {{-- Currency will render via format_currency() just like Dashboard --}}
@@ -25,7 +48,7 @@
 	</div>
 </div>
 
-<section style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+<section class="reports-stats">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;font-size:14px;">Total Transactions</div>
 		<div id="reportTotalTransactions" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ $totalTransactions ?? 0 }}</div>
@@ -47,12 +70,16 @@
 <section class="page-grid-2-1 stack-section">
 	<div class="card" style="padding:16px;">
 		<div style="font-weight:700;margin-bottom:10px;">Income vs Expenses Trend</div>
-		<canvas id="reportsTrend" height="140"></canvas>
+		<div class="chart-wrap" style="min-height:140px;">
+			<canvas id="reportsTrend" aria-label="Income vs Expenses Trend"></canvas>
+		</div>
 	</div>
 	<div class="card" style="padding:16px;">
 		<div style="font-weight:700;margin-bottom:10px;">Expense Categories</div>
 		@if(isset($expenseCategoryData) && count($expenseCategoryData['labels']) > 0)
-			<canvas id="expenseDonut" height="200"></canvas>
+			<div class="chart-wrap" style="min-height:200px;">
+				<canvas id="expenseDonut" aria-label="Expense Categories"></canvas>
+			</div>
 		@else
 			<div class="muted" style="text-align:center;margin-top:60px;padding:40px 20px;">No expense data available</div>
 		@endif

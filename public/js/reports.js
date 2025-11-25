@@ -9,7 +9,7 @@
     try {
         const reportsTrend = document.getElementById('reportsTrend');
         if (reportsTrend && window.Chart) {
-            new Chart(reportsTrend, {
+            window.__REPORTS_TREND_CHART = new Chart(reportsTrend, {
                 type: 'line',
                 data: {
                     labels: monthlyData.months,
@@ -19,6 +19,8 @@
                     ]
                 },
                 options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                     plugins: { legend: { labels: { color: '#cbd5e1' } } },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: '#243043' } },
@@ -35,7 +37,7 @@
         const expenseDonut = document.getElementById('expenseDonut');
         if (expenseDonut && window.Chart) {
             if ((expenseCategoryData.labels || []).length > 0) {
-                new Chart(expenseDonut, {
+            window.__REPORTS_DONUT_CHART = new Chart(expenseDonut, {
                     type: 'doughnut',
                     data: {
                         labels: expenseCategoryData.labels,
@@ -50,7 +52,7 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: {
                                 position: 'bottom',
@@ -98,4 +100,16 @@
             }, 100);
         } catch (e) { console.error('Reports page animation failed', e); }
     });
+
+    // Ensure charts resize correctly on orientation change / resize
+    function safeResizeReportsCharts() {
+        try {
+            if (window.__REPORTS_TREND_CHART && typeof window.__REPORTS_TREND_CHART.resize === 'function') window.__REPORTS_TREND_CHART.resize();
+            if (window.__REPORTS_DONUT_CHART && typeof window.__REPORTS_DONUT_CHART.resize === 'function') window.__REPORTS_DONUT_CHART.resize();
+        } catch (e) { }
+    }
+
+    let __rResizeTimer = null;
+    window.addEventListener('resize', function() { clearTimeout(__rResizeTimer); __rResizeTimer = setTimeout(safeResizeReportsCharts, 150); });
+    window.addEventListener('orientationchange', function() { setTimeout(safeResizeReportsCharts, 300); });
 })();

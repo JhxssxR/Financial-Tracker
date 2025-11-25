@@ -227,7 +227,7 @@
         checkbox.addEventListener('change', updateToggle);
     });
 
-    // Delete account confirmation
+    
     function confirmDelete() {
         if (confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you absolutely sure you want to delete your account?\n\nThis will permanently delete:\n• All your personal data\n• All transactions and budgets\n• All savings goals and reports\n• Your entire account history')) {
             if (confirm('This is your final confirmation.\n\nType DELETE in the next prompt to confirm deletion.')) {

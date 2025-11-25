@@ -141,6 +141,14 @@
             main.container { padding-top:64px; }
             .chat-input { font-size:14px; }
         }
+
+        /* Chart helpers to ensure canvases are visible on small screens */
+        .chart-wrap { position:relative; width:100%; min-height:260px; }
+        .chart-wrap canvas { width:100% !important; height:100% !important; display:block; }
+
+        @media (max-width: 640px) {
+            .chart-wrap { min-height:220px; }
+        }
     </style>
     <?php echo $__env->yieldPushContent('head'); ?>
  </head>
@@ -341,14 +349,28 @@
                         toggle.appendChild(label);
                     }
 
-                    // initialize aria and icon
+                    // initialize aria and icon, track open state via data-open
                     toggle.setAttribute('aria-expanded', 'false');
+                    toggle.dataset.open = 'false';
                     if (!toggle.querySelector('.mobile-nav-label')) renderClosed();
 
-                    function openNav(){ nav.classList.add('open'); toggle.setAttribute('aria-expanded','true'); renderOpen(); }
-                    function closeNav(){ nav.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); renderClosed(); }
+                    function openNav(){ nav.classList.add('open'); toggle.setAttribute('aria-expanded','true'); toggle.dataset.open = 'true'; renderOpen(); }
+                    function closeNav(){ nav.classList.remove('open'); toggle.setAttribute('aria-expanded','false'); toggle.dataset.open = 'false'; renderClosed(); }
 
-                    toggle.addEventListener('click', function(e){ e.stopPropagation(); if (nav.classList.contains('open')) closeNav(); else openNav(); });
+                    // Unified handler that works for click/touch and child targets
+                    function toggleHandler(e){
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (nav.classList.contains('open') || toggle.dataset.open === 'true') {
+                            closeNav();
+                        } else {
+                            openNav();
+                        }
+                    }
+
+                    toggle.addEventListener('click', toggleHandler);
+                    // support touchstart to improve responsiveness on mobile
+                    toggle.addEventListener('touchstart', function(e){ toggleHandler(e); }, {passive:false});
 
                     // close when clicking outside
                     document.addEventListener('click', function(e){ if (!nav.contains(e.target) && e.target !== toggle) closeNav(); });
