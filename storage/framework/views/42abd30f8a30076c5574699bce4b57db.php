@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
     <title>PF Trackers</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2310b981'/%3E%3Ctext x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306251d' font-family='Arial'%3E¥%3C/text%3E%3C/svg%3E">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%2310b981'/%3E%3Ctext x='50' y='70' font-size='60' font-weight='bold' text-anchor='middle' fill='%2306251d' font-family='Arial'%3E₱%3C/text%3E%3C/svg%3E">
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -156,7 +156,7 @@
  </head>
 <body class="h-full">
     <?php
-        $isAuth = request()->routeIs('login') || request()->routeIs('register');
+        $isAuth = request()->routeIs('login') || request()->routeIs('register') || request()->routeIs('password.request') || request()->routeIs('password.reset');
     ?>
     <?php if (! ($isAuth)): ?>
     <header class="nav">
@@ -170,7 +170,7 @@
             </button>
 
             <div class="site-brand" style="display:flex;align-items:center;gap:10px;">
-                <div class="brand-icon" style="width:28px;height:28px;background:#10b981;border-radius:8px;display:grid;place-items:center;color:#06251d;font-weight:800;">¥</div>
+                <div class="brand-icon" style="width:28px;height:28px;background:#10b981;border-radius:8px;display:grid;place-items:center;color:#06251d;font-weight:800;">₱</div>
                 <strong class="brand-title">PF Trackers</strong>
             </div>
             <nav id="main-nav-links" class="nav-links" style="display:flex;gap:6px;">
