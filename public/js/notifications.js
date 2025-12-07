@@ -75,6 +75,76 @@
         document.head.appendChild(style);
     })();
 
+    // Mark all as read function (called from button)
+    window.markAllAsRead = async function() {
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrf = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+        
+        try {
+            const res = await fetch('/notifications/mark-all-read', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrf,
+                }
+            });
+            
+            if (!res.ok) throw new Error('Request failed');
+            const data = await res.json();
+            
+            if (data && data.success) {
+                // Update UI: dim all items, remove unread dots, hide read buttons
+                document.querySelectorAll('.notif-item').forEach(item => {
+                    item.style.opacity = '0.5';
+                    const unreadDot = item.querySelector('.unread-dot');
+                    if (unreadDot) unreadDot.remove();
+                    const checkBtn = item.querySelector('.notif-action[data-action="read"]');
+                    if (checkBtn) checkBtn.style.display = 'none';
+                    try {
+                        item.style.borderLeft = 'none';
+                        item.style.boxShadow = 'none';
+                        item.style.borderTopLeftRadius = '12px';
+                        item.style.borderBottomLeftRadius = '12px';
+                        item.style.overflow = 'hidden';
+                    } catch (e) {}
+                });
+
+                // Update nav badge and header
+                const headerP = document.querySelector('h1 + p.muted');
+                if (headerP) {
+                    headerP.textContent = 'All caught up!';
+                }
+                
+                const markAllBtn = document.getElementById('markAllReadBtn');
+                if (markAllBtn) markAllBtn.style.display = 'none';
+
+                // Update nav badge
+                const navBadge = document.getElementById('nav-notif-count');
+                if (navBadge) {
+                    navBadge.textContent = '';
+                    navBadge.style.display = 'none';
+                }
+
+                // Broadcast to other tabs
+                try {
+                    const payload = { ts: Date.now(), action: 'mark-all', newCount: 0, latestUnread: null };
+                    localStorage.setItem('notifications:latest', JSON.stringify(payload));
+                    if (typeof BroadcastChannel !== 'undefined') {
+                        const bc = new BroadcastChannel('notifications-updates');
+                        bc.postMessage(payload);
+                        bc.close();
+                    }
+                } catch (e) { console.error(e); }
+
+                showToast('All notifications marked as read', 'success');
+            }
+        } catch (err) {
+            console.error('Mark all as read failed', err);
+            showToast('Failed to mark all as read', 'error');
+        }
+    };
+
     // Notification action handlers (mark as read / dismiss)
     (function() {
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');

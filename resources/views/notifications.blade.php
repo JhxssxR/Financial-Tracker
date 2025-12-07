@@ -1,11 +1,57 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    /* Notifications page mobile responsive styles */
+    @media (max-width: 768px) {
+        .notif-page-container { padding: 0 !important; }
+        
+        .notif-header { flex-direction: column; align-items: flex-start !important; gap: 16px !important; }
+        .notif-header h1 { font-size: 24px !important; }
+        .notif-header .muted { font-size: 13px !important; }
+        
+        .notif-actions { width: 100%; flex-direction: column; gap: 10px !important; }
+        .notif-actions button, .notif-actions a { width: 100% !important; justify-content: center !important; }
+        
+        .notif-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+        .notif-section-title { font-size: 20px !important; margin-bottom: 12px !important; }
+        
+        .notif-item { flex-direction: column !important; align-items: flex-start !important; padding: 14px !important; gap: 12px !important; }
+        .notif-item > div:first-child { width: 100%; }
+        .notif-item > div:last-child { width: 100%; justify-content: flex-end !important; }
+        .notif-item .unread-dot { top: 10px !important; right: 10px !important; }
+        .notif-item p { font-size: 13px !important; }
+        
+        .status-badge { font-size: 12px !important; padding: 4px 8px !important; }
+        .status-badge span { width: 18px !important; height: 18px !important; font-size: 10px !important; }
+        
+        .empty-state { padding: 120px 40px !important; }
+        .empty-state-icon { width: 60px !important; height: 60px !important; margin-bottom: 16px !important; }
+        .empty-state-icon svg { width: 35px !important; height: 35px !important; }
+        .empty-state p { font-size: 14px !important; }
+        
+        .custom-pager { flex-wrap: wrap; gap: 8px !important; }
+        .custom-pager .page-link { padding: 8px 14px !important; font-size: 13px !important; }
+        .custom-pager > div { order: 3; width: 100%; justify-content: center; margin-top: 8px; }
+        .custom-pager .page-number { width: 36px !important; height: 36px !important; }
+    }
+    
+    @media (max-width: 480px) {
+        .notif-header h1 { font-size: 22px !important; }
+        .notif-item { padding: 12px !important; }
+        .notif-item p:first-of-type { font-size: 12px !important; }
+        .status-badge { font-size: 11px !important; }
+        .empty-state { padding: 100px 24px !important; }
+        
+        #toast-container { right: 10px !important; left: 10px !important; top: 10px !important; }
+    }
+</style>
+
 <!-- Toast Container -->
 <div id="toast-container" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:12px;"></div>
 
-<div style="max-width:1400px;margin:0 auto;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+<div class="notif-page-container" style="max-width:1400px;margin:0 auto;">
+    <div class="notif-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
             <h1 style="font-size:32px;font-weight:700;margin:0;">Notifications</h1>
             @if(isset($unreadCount) && $unreadCount > 0)
@@ -14,19 +60,30 @@
                 <p class="muted" style="margin:4px 0 0;font-size:14px;">All caught up!</p>
             @endif
         </div>
-        <a href="{{ route('settings.index') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;text-decoration:none;font-weight:600;transition:all .2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#1e293b'">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Settings
-        </a>
+        <div class="notif-actions" style="display:flex;gap:12px;align-items:center;">
+            {{-- Debug: unreadCount = {{ $unreadCount ?? 'not set' }} --}}
+            @if(isset($unreadCount) && $unreadCount > 0)
+                <button id="markAllReadBtn" onclick="markAllAsRead()" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#10b981;border:none;border-radius:8px;color:#fff;font-weight:600;cursor:pointer;transition:all .2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Mark All as Read
+                </button>
+            @endif
+            <a href="{{ route('settings.index') }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#1e293b;border:1px solid #334155;border-radius:8px;color:#e2e8f0;text-decoration:none;font-weight:600;transition:all .2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#1e293b'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Settings
+            </a>
+        </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 420px;gap:24px;margin-top:24px;">
+    <div class="notif-grid" style="display:grid;grid-template-columns:1fr 420px;gap:24px;margin-top:24px;">
         <!-- Left: Recent Notifications -->
         <div style="grid-column: 1 / -1;">
-            <h2 style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
+            <h2 class="notif-section-title" style="font-size:24px;font-weight:700;margin:0 0 16px;">Recent Notifications</h2>
             
             @forelse($notifications as $notification)
                 @php
@@ -40,14 +97,35 @@
                     $title = isset($notification->title) ? strtolower($notification->title) : '';
                     $msg = isset($notification->message) ? strtolower($notification->message) : '';
 
-                    // Withdrawals (match type OR title OR message for common verbs)
+                    // Budget notifications - critical / over budget (red)
                     if (
+                        strpos($type, 'budget') !== false &&
+                        (strpos($title, 'exceeded') !== false || strpos($title, 'over') !== false ||
+                         strpos($msg, 'exceeded') !== false || strpos($msg, 'over budget') !== false ||
+                         strpos($title, 'critical') !== false || strpos($msg, 'critical') !== false)
+                    ) {
+                        $leftColor = '#ef4444';
+                        $statusBadge = 'Over Budget';
+                    }
+                    // Budget notifications - near limit / warning (orange)
+                    elseif (
+                        strpos($type, 'budget') !== false &&
+                        (strpos($title, 'near') !== false || strpos($title, 'warning') !== false ||
+                         strpos($title, 'limit') !== false || strpos($msg, 'near') !== false ||
+                         strpos($msg, 'approaching') !== false || strpos($msg, 'almost') !== false)
+                    ) {
+                        $leftColor = '#f59e0b';
+                        $statusBadge = 'Near Limit';
+                    }
+                    // Withdrawals (match type OR title OR message for common verbs)
+                    elseif (
                         strpos($type, 'withdraw') !== false || strpos($type, 'withdrawal') !== false ||
                         strpos($title, 'withdraw') !== false || strpos($title, 'withdrew') !== false ||
                         strpos($msg, 'withdraw') !== false || strpos($msg, 'withdrew') !== false ||
                         strpos($msg, 'withdrawal') !== false
                     ) {
                         $leftColor = '#ef4444';
+                        $statusBadge = 'Withdrawal';
                     }
                     // Deposits / savings should be green (match type/title/message)
                     elseif (
@@ -56,6 +134,7 @@
                         strpos($msg, 'save') !== false || strpos($msg, 'depos') !== false || strpos($msg, 'deposited') !== false
                     ) {
                         $leftColor = '#10b981';
+                        $statusBadge = 'Deposit';
                     }
                 @endphp
 
@@ -67,10 +146,27 @@
 
                         @if($statusBadge)
                             @if($statusBadge === 'Over Budget')
-                                <span style="background:#ef4444;color:#fff;padding:4px 8px;border-radius:8px;font-size:12px;font-weight:700;">{{ $statusBadge }}</span>
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.15);color:#ef4444;padding:6px 10px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#ef4444;color:#fff;border-radius:50%;flex-shrink:0;font-size:11px;">!</span>
+                                    {{ $statusBadge }}
+                                </span>
+                            @elseif($statusBadge === 'Near Limit')
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,0.15);color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.2);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:11px;">⚠</span>
+                                    {{ $statusBadge }}
+                                </span>
+                            @elseif($statusBadge === 'Withdrawal')
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(239,68,68,0.15);color:#ef4444;padding:6px 10px;border-radius:10px;border:1px solid rgba(239,68,68,0.2);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#ef4444;color:#fff;border-radius:50%;flex-shrink:0;font-size:11px;">−</span>
+                                    {{ $statusBadge }}
+                                </span>
+                            @elseif($statusBadge === 'Deposit')
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,0.15);color:#10b981;padding:6px 10px;border-radius:10px;border:1px solid rgba(16,185,129,0.2);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#10b981;color:#fff;border-radius:50%;flex-shrink:0;font-size:11px;">+</span>
+                                    {{ $statusBadge }}
+                                </span>
                             @else
-                                <span style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.08);font-size:13px;font-weight:700;">
-                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:12px;"><svg width="12" height="12" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="display:block;margin:auto;"><path d="M12 7l-5 8h10l-5-8z" fill="#111"/></svg></span>
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:8px;background:#2a3238;color:#94a3b8;padding:6px 10px;border-radius:10px;border:1px solid rgba(148,163,184,0.08);font-size:13px;font-weight:700;">
                                     {{ $statusBadge }}
                                 </span>
                             @endif

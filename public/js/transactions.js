@@ -6,10 +6,15 @@
 
     function updateCategories() {
         const select = document.getElementById('categorySelect');
-        if (!select) return;
+        if (!select) {
+            console.error('Category select not found');
+            return;
+        }
         select.innerHTML = '<option value="">Select a category...</option>';
 
         const typeCategories = categoriesData[currentType] || [];
+        console.log('Loading categories for type:', currentType, 'Count:', typeCategories.length);
+        
         const seenNames = new Set();
         typeCategories.forEach(cat => {
             if (!cat || typeof cat.id === 'undefined') return;
@@ -23,13 +28,27 @@
             option.textContent = cat.name;
             select.appendChild(option);
         });
+
+        if (typeCategories.length === 0) {
+            console.warn('No categories found for type:', currentType);
+        }
     }
 
     function openTransactionModal() {
         const modal = document.getElementById('transactionModal');
-        if (!modal) return;
+        if (!modal) {
+            console.error('Transaction modal not found');
+            return;
+        }
+        
+        console.log('Opening transaction modal');
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+        
+        // Reset form and select income by default
+        const form = document.getElementById('transactionForm');
+        if (form) form.reset();
+        selectType('income');
         updateCategories();
     }
 
@@ -83,7 +102,10 @@
 
     async function submitTransaction() {
         const form = document.getElementById('transactionForm');
-        if (!form) return;
+        if (!form) {
+            console.error('Transaction form not found');
+            return;
+        }
 
         if (!form.checkValidity()) {
             form.reportValidity();
@@ -93,21 +115,35 @@
         const formData = new FormData(form);
         // ensure the current type is always submitted
         formData.set('type', currentType);
+        
         const submitBtn = document.getElementById('submitBtn');
-        if (!submitBtn) return;
+        if (!submitBtn) {
+            console.error('Submit button not found');
+            return;
+        }
         const originalContent = submitBtn.innerHTML;
 
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span>Saving...</span>';
 
         try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
             const res = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': csrfToken.content
                 }
             });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
             const data = await res.json();
 
             if (data.success) {
@@ -145,13 +181,13 @@
                 closeTransactionModal();
                 window.location.reload();
             } else {
-                alert('Error adding transaction. Please try again.');
+                alert(data.message || 'Error adding transaction. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalContent;
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error adding transaction. Please try again.');
+            alert('Error adding transaction: ' + error.message);
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalContent;
         }

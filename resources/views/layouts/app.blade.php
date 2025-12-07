@@ -82,9 +82,9 @@
         .chat-send { width:44px; height:44px; border-radius:10px; background:#10b981; border:none; color:#06251d; display:grid; place-items:center; cursor:pointer; }
 
         /* Modal styles */
-        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(3px); z-index:999; display:none; align-items:center; justify-content:center; }
-        .modal-overlay.active { display:flex; }
-        .modal-content { background:#1a2b3a; border:1px solid #2d3d4f; border-radius:16px; width:90%; max-width:550px; max-height:83vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+        .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(3px); z-index:9999; display:none; align-items:center; justify-content:center; pointer-events:none; }
+        .modal-overlay.active { display:flex; pointer-events:auto; }
+        .modal-content { background:#1a2b3a; border:1px solid #2d3d4f; border-radius:16px; width:90%; max-width:550px; max-height:83vh; overflow-y:auto; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.5); pointer-events:auto; }
         .modal-header { padding:18px 22px; border-bottom:1px solid #2d3d4f; display:flex; align-items:center; gap:10px; }
         .modal-header h2 { font-size:20px; font-weight:700; flex:1; color:#e2e8f0; }
         .modal-close { background:transparent; border:none; color:#94a3b8; cursor:pointer; font-size:22px; padding:4px 8px; line-height:1; width:32px; height:32px; border-radius:6px; }
@@ -125,20 +125,22 @@
 
         @media (max-width: 640px) {
             .nav { padding:8px 0; }
+            .nav .container { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
             /* show mobile toggle (override inline display) */
-            .mobile-nav-toggle { display:flex !important; align-items:center; gap:8px; }
-            /* position the toggle below the brand title for a cleaner look */
-            .site-brand { flex-direction:column; align-items:center; }
-            .brand-title { margin-top:6px; }
-            .mobile-nav-toggle { margin-left:0 !important; margin-top:8px !important; }
-            .brand-icon { width:40px; height:40px; font-weight:900; border-radius:10px; display:grid; place-items:center; }
-            .brand-title { font-size:18px; }
+            .mobile-nav-toggle { display:flex !important; align-items:center; gap:6px; padding:8px 12px; margin:0 0 0 8px; flex-basis:100%; order:2; }
+            /* Keep brand horizontal with logo next to text */
+            .site-brand { flex-direction:row; gap:8px; flex:0 1 auto; order:1; }
+            .brand-icon { width:32px; height:32px; margin:0; font-weight:900; border-radius:10px; display:grid; place-items:center; }
+            .brand-title { font-size:18px; margin:0; line-height:1; white-space:nowrap; }
             .mobile-nav-icon { display:inline-flex; }
             .mobile-nav-label { display:inline-block; }
+            /* Show profile and notification icons on mobile */
+            .nav .container > div:last-child { display:flex !important; gap:12px; margin-left:auto !important; order:1; }
             /* mobile nav: start hidden using max-height so we can animate open/close */
-            .nav-links { display:flex; flex-direction:column; position:absolute; left:0; right:0; top:56px; padding:0 12px; gap:8px; background:#1e293b; border-bottom:1px solid #334155; z-index:3200; max-height:0; overflow:hidden; transition:max-height .28s ease, padding .22s ease; }
+            .nav-links { display:flex; flex-direction:column; position:absolute; left:0; right:0; top:70px; padding:0 12px; gap:8px; background:#1e293b; border-bottom:1px solid #334155; z-index:3200; max-height:0; overflow:hidden; transition:max-height .28s ease, padding .22s ease; }
             .nav-links.open { max-height:480px; padding:10px 12px; }
-            main.container { padding-top:64px; }
+            .nav-links a { padding:12px 16px !important; }
+            main.container { padding-top:78px; }
             .chat-input { font-size:14px; }
         }
 
@@ -159,17 +161,17 @@
     @unless($isAuth)
     <header class="nav">
         <div class="container" style="display:flex;align-items:center;gap:18px;position:relative;">
+            <!-- Mobile toggle comes first -->
+            <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Toggle menu" style="display:none;background:transparent;border:none;color:#cbd5e1;cursor:pointer;padding:8px;border-radius:8px;">
+                <span class="mobile-nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                <span class="mobile-nav-label">Menu</span>
+            </button>
+
             <div class="site-brand" style="display:flex;align-items:center;gap:10px;">
                 <div class="brand-icon" style="width:28px;height:28px;background:#10b981;border-radius:8px;display:grid;place-items:center;color:#06251d;font-weight:800;">¥</div>
                 <strong class="brand-title">PF Trackers</strong>
-
-                <!-- Mobile toggle moved inside brand so it appears below title on small screens -->
-                <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Toggle menu" style="display:none;background:transparent;border:none;color:#cbd5e1;cursor:pointer;padding:8px;border-radius:8px;margin-left:8px;">
-                    <span class="mobile-nav-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    </span>
-                    <span class="mobile-nav-label">Menu</span>
-                </button>
             </div>
             <nav id="main-nav-links" class="nav-links" style="display:flex;gap:6px;">
                 <a class="{{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">Dashboard</a>
@@ -217,9 +219,9 @@
                                 Settings
                             </a>
                             <div style="border-top:1px solid #334155;margin:6px 0;"></div>
-                            <form method="POST" action="{{ route('logout') }}">
+                            <form id="logout-form" method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <button type="submit" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#f87171;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
+                                <button type="submit" onclick="clearUserData(event)" style="width:100%;text-align:left;padding:10px 12px;background:transparent;border:none;color:#f87171;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:8px;" onmouseover="this.style.background='#3f1515';this.style.color='#fca5a5'" onmouseout="this.style.background='transparent';this.style.color='#f87171'">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
@@ -457,6 +459,20 @@
             })();
         </script>
     @endunless
+
+    <script>
+        // Clear localStorage on logout to prevent data leakage between users
+        function clearUserData(event) {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                // Storage access may be blocked
+            }
+            // Let form submission proceed normally
+            return true;
+        }
+    </script>
 
     @stack('scripts')
 </body>

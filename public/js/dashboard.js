@@ -38,7 +38,7 @@
                     ]
                 },
                 options: {
-                    responsive: true,
+                    responsive: true, // Re-enable responsive
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
@@ -231,12 +231,53 @@
    
     function safeResizeDashboardChart() {
         try {
-            if (window.__DASHBOARD_CHART && typeof window.__DASHBOARD_CHART.resize === 'function') window.__DASHBOARD_CHART.resize();
-        } catch (e) { }
+            var ch = window.__DASHBOARD_CHART;
+            if (!ch || !ch.canvas) return;
+
+            var canvas = ch.canvas;
+            var wrapper = canvas.parentElement;
+            if (!wrapper) return;
+
+            // Get the wrapper's actual size
+            var rect = wrapper.getBoundingClientRect();
+            var targetWidth = Math.round(rect.width);
+            var targetHeight = 320; // Fixed height as per CSS
+
+            // Check if size actually changed
+            window.__DASHBOARD_CHART_LAST_SIZE = window.__DASHBOARD_CHART_LAST_SIZE || {};
+            if (window.__DASHBOARD_CHART_LAST_SIZE.w === targetWidth && window.__DASHBOARD_CHART_LAST_SIZE.h === targetHeight) {
+                return; // No change, skip resize
+            }
+
+            // Update canvas dimensions
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            canvas.style.width = targetWidth + 'px';
+            canvas.style.height = targetHeight + 'px';
+
+            // Store the new size
+            window.__DASHBOARD_CHART_LAST_SIZE.w = targetWidth;
+            window.__DASHBOARD_CHART_LAST_SIZE.h = targetHeight;
+
+            // Manually trigger chart resize
+            if (typeof ch.resize === 'function') {
+                ch.resize(targetWidth, targetHeight);
+            }
+            if (typeof ch.update === 'function') {
+                ch.update('none'); // Update without animation
+            }
+        } catch (e) {
+            console.error('Chart resize error:', e);
+        }
     }
 
     let __dResizeTimer = null;
-    window.addEventListener('resize', function() { clearTimeout(__dResizeTimer); __dResizeTimer = setTimeout(safeResizeDashboardChart, 150); });
-    window.addEventListener('orientationchange', function() { setTimeout(safeResizeDashboardChart, 300); });
+    window.addEventListener('resize', function() { 
+        clearTimeout(__dResizeTimer); 
+        __dResizeTimer = setTimeout(safeResizeDashboardChart, 200); 
+    });
+    window.addEventListener('orientationchange', function() { 
+        setTimeout(safeResizeDashboardChart, 400); 
+    });
 
 })();

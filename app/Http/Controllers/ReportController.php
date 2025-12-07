@@ -42,8 +42,8 @@ class ReportController extends Controller
         // Return view with explicit no-cache headers
         return response()
             ->view('reports', [
-                'currencySymbol' => $user->currency_symbol ?? '€',
-                'currencyCode' => $user->currency_code ?? 'EUR',
+                'currencySymbol' => $user->currency_symbol ?? '₱',
+                'currencyCode' => $user->currency_code ?? 'PHP',
                 'totalIncome' => $totalIncome,
                 'totalExpenses' => $totalExpenses,
                 'totalSavings' => $totalSavings,
@@ -158,8 +158,8 @@ class ReportController extends Controller
         
         $data = [
             'user' => $user,
-            'currencySymbol' => $user->currency_symbol ?? '€',
-            'currencyCode' => $user->currency_code ?? 'EUR',
+            'currencySymbol' => $user->currency_symbol ?? '₱',
+            'currencyCode' => $user->currency_code ?? 'PHP',
             'totalIncome' => $totalIncome,
             'totalExpenses' => $totalExpenses,
             'totalSavings' => $totalSavings,

@@ -43,9 +43,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/currency', [SettingsController::class, 'updateCurrency'])->name('settings.currency');
+    Route::post('/settings/password', [SettingsController::class, 'updatePassword'])->name('settings.password');
+    Route::post('/settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
+    Route::post('/settings/delete-account', [SettingsController::class, 'deleteAccount'])->name('settings.delete-account');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unreadCount');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllRead');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     

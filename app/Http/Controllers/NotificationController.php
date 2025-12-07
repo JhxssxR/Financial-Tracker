@@ -63,6 +63,22 @@ class NotificationController extends Controller
     }
 
     /**
+     * Mark all notifications as read
+     */
+    public function markAllAsRead()
+    {
+        Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json([
+            'success' => true,
+            'newCount' => 0,
+            'latestUnread' => null,
+        ]);
+    }
+
+    /**
      * Delete (dismiss) a notification
      */
     public function destroy(Notification $notification)

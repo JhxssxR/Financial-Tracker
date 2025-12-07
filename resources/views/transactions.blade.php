@@ -1,6 +1,47 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+	/* Transactions page mobile responsive styles */
+	@media (max-width: 768px) {
+		.page-header { flex-wrap:wrap; gap:10px !important; }
+		.page-header h1 { font-size:22px !important; flex:1 1 100%; }
+		.page-header > div { margin-left:0 !important; width:100%; flex-direction:column; }
+		.page-header a, .page-header button { width:100%; justify-content:center; }
+		
+		.filter-section-header { flex-direction:column; align-items:flex-start !important; gap:8px !important; }
+		.filter-section-header span { font-size:14px !important; }
+		
+		.filters-container { flex-direction:column !important; gap:10px !important; align-items:stretch !important; }
+		.filters-container > div { width:100% !important; max-width:100% !important; min-width:0 !important; flex:none !important; }
+		.filters-container > select { width:100% !important; max-width:100% !important; min-width:0 !important; }
+		.filters-container > button { width:100% !important; margin:0 !important; }
+		.filters-container input { font-size:14px !important; }
+		
+		.transactions-table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+		.transactions-table table { min-width:600px; }
+		.transactions-table th, .transactions-table td { font-size:12px !important; padding:10px 6px !important; }
+		.transactions-table td:first-child { white-space:nowrap; }
+		
+		.summary-cards .card > div:first-child { font-size:13px !important; }
+		.summary-cards .card > div:nth-child(2) { font-size:22px !important; }
+		
+		.pagination-container { flex-wrap:wrap; padding:16px 0 !important; }
+		.pagination-numbers { order:3; width:100%; justify-content:center; margin-top:12px; }
+	}
+	
+	@media (max-width: 480px) {
+		.page-header h1 { font-size:20px !important; }
+		.page-header a span, .page-header button { font-size:14px !important; }
+		
+		.transactions-table th:nth-child(3), .transactions-table td:nth-child(3) { display:none; }
+		.transactions-table td:nth-child(2) { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+		
+		.summary-cards .card { padding:12px !important; }
+		.summary-cards .card > div:nth-child(2) { font-size:20px !important; }
+	}
+</style>
+
 <div class="page-header" style="display:flex;align-items:center;gap:12px;">
     <h1 style="font-size:28px;font-weight:700;">Transactions</h1>
     <div style="margin-left:auto;display:flex;gap:8px;">
@@ -10,9 +51,11 @@
             </svg>
             Export
         </a>
-        <button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;cursor:pointer;" onclick="openTransactionModal()">+ Add Transaction</button>
+        <button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;cursor:pointer;transition:all .2s;font-weight:600;" onclick="openTransactionModal()" onmouseover="this.style.background='#10b981'" onmouseout="this.style.background='#059669'">+ Add Transaction</button>
     </div>
- </div><section class="page-grid-3">
+ </div>
+ 
+<section class="page-grid-3 summary-cards">
 	<div class="card" style="padding:16px;">
 		<div class="muted" style="font-weight:600;">Total Transactions</div>
 		<div id="totalTransactions" style="font-size:28px;font-weight:700; margin-top:6px;text-align:right;">{{ $totalTransactions }}</div>
@@ -28,20 +71,20 @@
 </section>
 
 <section class="card card-pad stack-section">
-	<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+	<div class="filter-section-header" style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
 		<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 			<path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V17L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 		</svg>
 		<span style="font-weight:600;font-size:16px;">Filters & Search</span>
 	</div>
 
-	<div style="display:flex;align-items:center;gap:12px;">
+	<div class="filters-container" style="display:flex;align-items:center;gap:12px;">
         <div style="position:relative;flex:1;max-width:350px;">
             <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#64748b;" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
                 <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <input id="searchInput" onkeyup="filterTransactions()" placeholder="Search transactions..." style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px 10px 38px;width:100%;color:#e2e8f0;">
+            <input id="searchInput" onkeyup="filterTransactions()" placeholder="Search transactions..." style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px 10px 38px;width:100%;color:#e2e8f0;font-size:15px;">
         </div>
         <select id="typeFilter" onchange="filterTransactions()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;min-width:260px;max-width:320px;font-size:15px;">
             <option value="">All Types</option>
@@ -54,13 +97,13 @@
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
             @endforeach
         </select>
-    <button onclick="clearFilters()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;cursor:pointer;font-size:15px;white-space:nowrap;margin-left:auto;margin-right:32px;">Clear Filters</button>
+    <button onclick="clearFilters()" style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px 12px;color:#e2e8f0;cursor:pointer;font-size:15px;white-space:nowrap;font-weight:500;">Clear Filters</button>
 	</div>
 </section>
 
 <section class="card stack-section" style="padding:0;overflow:hidden;">
 	<div style="padding:16px 18px;border-bottom:1px solid #334155;font-weight:600;">Transaction History</div>
-	<div style="padding:12px 18px;">
+	<div class="transactions-table" style="padding:12px 18px;">
 		<table style="width:100%;border-collapse:collapse;">
 			<thead class="muted" style="font-size:12px;text-transform:uppercase;">
 				<tr>
@@ -123,7 +166,7 @@
 
 	<!-- Pagination -->
 	@if($transactions->hasPages())
-		<div style="display:flex; justify-content:center; align-items:center; gap:8px; padding:24px 0;">
+		<div class="pagination-container" style="display:flex; justify-content:center; align-items:center; gap:8px; padding:24px 0;">
 			@if($transactions->onFirstPage())
 				<button disabled style="padding:10px 16px; background:#0f172a; border:1px solid #334155; border-radius:8px; color:#475569; cursor:not-allowed; font-size:14px;">
 					Previous
@@ -134,7 +177,7 @@
 				</a>
 			@endif
 
-			<div style="display:flex; gap:4px;">
+			<div class="pagination-numbers" style="display:flex; gap:4px;">
 				@foreach(range(1, $transactions->lastPage()) as $page)
 					@if($page == $transactions->currentPage())
 						<span style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#10b981; border-radius:8px; color:white; font-weight:600; font-size:14px;">
@@ -174,7 +217,7 @@
                 <path d="M8.5 14.5c0 1.105.895 2 2 2h2c1.105 0 2-.895 2-2s-.895-2-2-2h-1c-1.105 0-2-.895-2-2s.895-2 2-2h2c1.105 0 2 .895 2 2M12 6v2m0 8v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
             <h2>Add Transaction</h2>
-            <button class="modal-close" onclick="closeTransactionModal()">✕</button>
+            <button class="modal-close" onclick="closeTransactionModal()" type="button">✕</button>
         </div>
         <div class="modal-body">
             <form id="transactionForm" method="POST" action="{{ route('transactions.store') }}">
@@ -240,13 +283,13 @@
                         </svg>
                         <span>Date</span>
                     </label>
-                    <input class="form-input" name="transaction_date" type="date" value="{{ date('Y-m-d') }}" required />
+                    <input class="form-input" id="dateInput" name="transaction_date" type="date" value="{{ date('Y-m-d') }}" required />
                 </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-cancel" onclick="closeTransactionModal()">Cancel</button>
-            <button class="btn btn-primary" id="submitBtn" onclick="submitTransaction()" style="width:auto;min-width:150px;padding:11px 20px;font-size:14px;font-weight:600;">
+            <button class="btn btn-cancel" onclick="closeTransactionModal()" type="button">Cancel</button>
+            <button class="btn btn-primary" id="submitBtn" onclick="submitTransaction()" type="button" style="width:auto;min-width:150px;padding:11px 20px;font-size:14px;font-weight:600;">
                 <span style="margin-right:6px;">📈</span> Add Income
             </button>
         </div>
@@ -259,6 +302,9 @@
     window.__TRANSACTIONS_DATA = {
         categories: @json($categories)
     };
+    
+    // Debug: Log categories data
+    console.log('Categories data loaded:', window.__TRANSACTIONS_DATA.categories);
 </script>
 <script src="{{ asset('js/transactions.js') }}" defer></script>
 @endpush

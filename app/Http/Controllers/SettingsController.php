@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 
 class SettingsController extends Controller
 {
@@ -58,6 +60,96 @@ class SettingsController extends Controller
             'success' => true,
             'currency_code' => $currencyCode,
             'currency_symbol' => $currencySymbol,
+        ]);
+    }
+
+    /**
+     * Update user password
+     */
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $user = Auth::user();
+
+        // Verify current password
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect.'
+            ], 400);
+        }
+
+        // Update password
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully.'
+        ]);
+    }
+
+    /**
+     * Update user email
+     */
+    public function updateEmail(Request $request)
+    {
+        $request->validate([
+            'new_email' => 'required|email|unique:users,email,' . Auth::id(),
+            'password' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        // Verify password
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Password is incorrect.'
+            ], 400);
+        }
+
+        // Update email
+        $user->email = $request->new_email;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email updated successfully.'
+        ]);
+    }
+
+    /**
+     * Delete user account
+     */
+    public function deleteAccount(Request $request)
+    {
+        $user = Auth::user();
+
+        // Delete all user related data
+        $user->transactions()->delete();
+        $user->budgets()->delete();
+        $user->savings()->delete();
+        $user->notifications()->delete();
+        $user->categories()->delete();
+
+        // Logout user
+        Auth::logout();
+        
+        // Invalidate session
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // Delete user account
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Account deleted successfully.'
         ]);
     }
 }

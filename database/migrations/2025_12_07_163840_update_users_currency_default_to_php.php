@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('currency_code', 3)->default('PHP')->after('email');
-            $table->string('currency_symbol', 5)->default('₱')->after('currency_code');
+            $table->string('currency_code', 3)->default('PHP')->change();
+            $table->string('currency_symbol', 5)->default('₱')->change();
         });
     }
 
@@ -23,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['currency_code', 'currency_symbol']);
+            $table->string('currency_code', 3)->default('EUR')->change();
+            $table->string('currency_symbol', 5)->default('€')->change();
         });
     }
 };

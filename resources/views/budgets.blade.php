@@ -1,12 +1,36 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="page-header" style="display:flex;align-items:center;gap:12px;">
-	<h1 style="font-size:28px;font-weight:700;">Budget Management</h1>
+<div class="page-header" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+	<h1 style="font-size:28px;font-weight:700;flex:1;min-width:200px;">Budget Management</h1>
 	<div style="margin-left:auto;">
-		<button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;cursor:pointer;" onclick="openBudgetModal()">+ Create Budget</button>
+		<button class="card" style="padding:8px 12px;background:#059669;border-color:#059669;cursor:pointer;font-weight:600;white-space:nowrap;" onclick="openBudgetModal()">+ Create Budget</button>
 	</div>
 </div>
+
+<style>
+	/* Budget modal specific styles */
+	#budgetModal { display:none !important; pointer-events:none !important; }
+	#budgetModal.active { display:flex !important; pointer-events:auto !important; }
+	
+	@media (max-width: 640px) {
+		.page-header h1 { font-size:22px !important; }
+		.page-header button { width:100%; padding:10px 12px !important; }
+		.page-header { gap:10px !important; }
+		.budget-filter-header { flex-direction:column; align-items:flex-start !important; }
+		.budget-filter-header > div:first-child { width:100%; }
+		.budget-filter-header > div:last-child { width:100%; justify-content:space-between; }
+		.budget-filter-header select { flex:1; min-width:0 !important; }
+		.filter-icon { display:none; }
+		.budget-card { padding:10px !important; }
+		.budget-header { flex-wrap:wrap; }
+		.budget-actions { width:100%; justify-content:flex-end; margin-top:8px; }
+		.budget-footer { font-size:11px !important; }
+		.budget-footer span:first-child { font-size:11px !important; }
+		.budget-footer span:last-child { font-size:12px !important; }
+		.budget-amount > div { font-size:11px !important; }
+	}
+</style>
 
 <section class="page-grid-3">
 	<div class="card" style="padding:16px;">
@@ -27,10 +51,10 @@
 </section>
 
 <section class="stack-section">
-	<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+	<div class="budget-filter-header" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
 		<div style="font-weight:700; font-size:20px; color:#f1f5f9;">Budget Categories</div>
 		<div style="display:flex; align-items:center; gap:12px;">
-			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<svg class="filter-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 				<path d="M3 4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V6.58579C21 6.851 20.8946 7.10536 20.7071 7.29289L14.2929 13.7071C14.1054 13.8946 14 14.149 14 14.4142V17L10 21V14.4142C10 14.149 9.89464 13.8946 9.70711 13.7071L3.29289 7.29289C3.10536 7.10536 3 6.851 3 6.58579V4Z" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 			</svg>
 			<select id="categoryFilter" onchange="filterBudgets()" style="background:#1e293b; border:1px solid #334155; border-radius:8px; padding:10px 16px; color:#e2e8f0; min-width:200px; cursor:pointer;">
@@ -75,10 +99,10 @@
 			}
 		@endphp
 		
-		<div class="card" style="padding:12px; margin-bottom:10px; background:#1a2332;" data-budget-id="{{ $budget->id }}" data-category-id="{{ $budget->category_id }}">
+		<div class="card budget-card" style="padding:12px; margin-bottom:10px; background:#1a2332;" data-budget-id="{{ $budget->id }}" data-category-id="{{ $budget->category_id }}">
 			<!-- Header -->
-			<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
-				<div style="display:flex; align-items:center; gap:8px;">
+			<div class="budget-header" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px; gap:8px;">
+				<div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
 					<div style="width:40px; height:40px; background:rgba(255, 255, 255, 0.08); border-radius:8px; display:flex; align-items:center; justify-content:center;">
 						@php
 							// Map category names to simple outline icons
@@ -99,8 +123,8 @@
 							{!! $iconSvg !!}
 						</div>
 					</div>
-					<div>
-						<h3 style="font-weight:600; font-size:14px; margin:0 0 3px 0; color:#f1f5f9;">{{ $budget->category->name ?? $budget->name }}</h3>
+					<div style="min-width:0; flex:1;">
+						<h3 style="font-weight:600; font-size:14px; margin:0 0 3px 0; color:#f1f5f9; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ $budget->category->name ?? $budget->name }}</h3>
 						@php
 							$statusText = 'On Track';
 							$statusBg = 'rgba(16, 185, 129, 0.15)';
@@ -127,7 +151,7 @@
 						</div>
 					</div>
 				</div>
-				<div style="display:flex; gap:4px;">
+				<div class="budget-actions" style="display:flex; gap:4px; flex-shrink:0;">
 					<button onclick="editBudget({{ $budget->id }})" style="padding:8px; background:transparent; border:none; color:#94a3b8; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#e2e8f0'" onmouseout="this.style.color='#94a3b8'">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -143,8 +167,8 @@
 			</div>
 			
 			<!-- Amount Display -->
-			<div style="margin-bottom:8px;">
-				<div style="font-size:12px; color:#94a3b8; margin-bottom:2px;">
+			<div class="budget-amount" style="margin-bottom:8px;">
+				<div style="font-size:12px; color:#94a3b8; margin-bottom:2px; word-break:break-word;">
 					{{ format_currency($budget->spent) }} of {{ format_currency($budget->amount) }} • {{ $budget->period }}
 				</div>
 				<div style="color:{{ $budget->is_expired ? '#ef4444' : '#64748b' }}; font-size:11px;">
@@ -172,9 +196,9 @@
 			</div>
 			
 			<!-- Footer Info -->
-			<div style="display:flex; justify-content:space-between; align-items:center;">
+			<div class="budget-footer" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
 				<span style="font-size:12px; font-weight:600; color:#e2e8f0;">{{ number_format($budget->percentage, 0) }}% used</span>
-				<span style="font-size:13px; font-weight:600; color:#e2e8f0;">
+				<span style="font-size:13px; font-weight:600; color:#e2e8f0; word-break:break-word;">
 					{{ format_currency(abs($budget->remaining)) }} remaining
 				</span>
 			</div>
@@ -240,7 +264,7 @@
 
 <!-- Budget Modal -->
 <div id="budgetModal" class="modal-overlay">
-	<div class="modal-container" style="max-width:540px; width:90%; background:#1e293b; border-radius:16px; padding:0;">
+	<div class="modal-container" style="max-width:540px; width:90%; background:#1e293b; border-radius:16px; padding:0; position:relative; pointer-events:auto;">
 		<!-- Modal Header -->
 		<div style="display:flex; align-items:center; gap:16px; padding:24px; border-bottom:1px solid #334155;">
 			<div style="width:56px; height:56px; background:#059669; border-radius:12px; display:flex; align-items:center; justify-content:center;">
@@ -382,12 +406,14 @@
 		document.getElementById('budgetMethod').value = 'POST';
 		document.getElementById('budgetForm').action = '{{ route("budgets.store") }}';
 		updateDateRange(); // Set default dates
-		document.getElementById('budgetModal').classList.add('active');
+		const modal = document.getElementById('budgetModal');
+		modal.classList.add('active');
 		document.body.style.overflow = 'hidden';
 	}
 
 	function closeBudgetModal() {
-		document.getElementById('budgetModal').classList.remove('active');
+		const modal = document.getElementById('budgetModal');
+		modal.classList.remove('active');
 		document.body.style.overflow = '';
 	}
 
@@ -417,7 +443,8 @@
 		document.getElementById('budgetStartDate').value = budget.start_date;
 		document.getElementById('budgetEndDate').value = budget.end_date;
 		
-		document.getElementById('budgetModal').classList.add('active');
+		const modal = document.getElementById('budgetModal');
+		modal.classList.add('active');
 		document.body.style.overflow = 'hidden';
 	}
 
@@ -563,11 +590,13 @@
 			}
 		}, 100);
 	});
+</script>
+
 @push('scripts')
-	<script>
-		window.__BUDGETS = @json($budgets->items());
-	</script>
-	<script src="{{ asset('js/budgets.js') }}"></script>
+<script>
+	window.__BUDGETS = @json($budgets->items());
+</script>
+<script src="{{ asset('js/budgets.js') }}"></script>
 @endpush
 
 @endsection

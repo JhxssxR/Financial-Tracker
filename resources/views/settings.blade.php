@@ -26,7 +26,7 @@
             <div class="muted" style="font-size:13px;margin-bottom:8px;">Current Currency</div>
             <div style="display:flex;align-items:center;gap:12px;">
                 <div style="width:40px;height:40px;background:#1e293b;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:14px;color:#10b981;" id="current-currency-code">
-                    {{ Auth::user()->currency_code ?? 'EUR' }}
+                    {{ Auth::user()->currency_code ?? 'PHP' }}
                 </div>
                 <div>
                     <div style="font-weight:600;font-size:15px;" id="current-currency-name">
@@ -43,11 +43,11 @@
                                 'INR' => ['name' => 'Indian Rupee', 'symbol' => '₹'],
                                 'PHP' => ['name' => 'Philippine Peso', 'symbol' => '₱'],
                             ];
-                            $currentCode = Auth::user()->currency_code ?? 'EUR';
+                            $currentCode = Auth::user()->currency_code ?? 'PHP';
                             echo $currencies[$currentCode]['name'];
                         @endphp
                     </div>
-                    <div class="muted" style="font-size:13px;" id="current-currency-symbol">{{ Auth::user()->currency_symbol ?? '€' }} {{ Auth::user()->currency_code ?? 'EUR' }}</div>
+                    <div class="muted" style="font-size:13px;" id="current-currency-symbol">{{ Auth::user()->currency_symbol ?? '₱' }} {{ Auth::user()->currency_code ?? 'PHP' }}</div>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
         <!-- Currency Grid -->
         <div class="currency-grid" style="display:grid;gap:12px;">
             @php
-                $userCurrency = Auth::user()->currency_code ?? 'EUR';
+                $userCurrency = Auth::user()->currency_code ?? 'PHP';
                 $allCurrencies = [
                     ['code' => 'USD', 'name' => 'US Dollar', 'symbol' => '$', 'abbr' => 'US'],
                     ['code' => 'EUR', 'name' => 'Euro', 'symbol' => '€', 'abbr' => 'EU'],
@@ -100,73 +100,6 @@
         </div>
     </div>
 
-    <!-- Notifications Section -->
-    <div class="card card-pad-lg" style="margin-bottom:24px;">
-        <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
-            <div style="width:48px;height:48px;background:#1a2b3a;border-radius:12px;display:grid;place-items:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </div>
-            <div>
-                <h2 style="font-size:20px;font-weight:700;margin:0;">Notifications</h2>
-                <p class="muted" style="margin:0;font-size:14px;">Manage your notification preferences</p>
-            </div>
-        </div>
-
-        <!-- Email Alerts -->
-        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Email Alerts</div>
-                <div class="muted" style="font-size:13px;">Receive alerts via email</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" checked style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#334155;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(24px);"></span>
-            </label>
-        </div>
-
-        <!-- Budget Alerts -->
-        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Budget Alerts</div>
-                <div class="muted" style="font-size:13px;">Get notified when approaching budget limits</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" checked style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#334155;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(24px);"></span>
-            </label>
-        </div>
-
-        <!-- Transaction Alerts -->
-        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid #334155;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Transaction Alerts</div>
-                <div class="muted" style="font-size:13px;">Receive alerts for every transaction</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#1e293b;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#94a3b8;border-radius:50%;transition:.3s;"></span>
-            </label>
-        </div>
-
-        <!-- Weekly Reports -->
-        <div class="setting-row" style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;">
-            <div>
-                <div style="font-weight:600;font-size:15px;margin-bottom:2px;">Weekly Reports</div>
-                <div class="muted" style="font-size:13px;">Get weekly financial summary reports</div>
-            </div>
-            <label style="position:relative;display:inline-block;width:48px;height:24px;cursor:pointer;">
-                <input type="checkbox" checked style="opacity:0;width:0;height:0;" class="toggle-switch">
-                <span class="toggle-track" style="position:absolute;inset:0;background:#334155;border-radius:24px;transition:.3s;"></span>
-                <span class="toggle-thumb" style="position:absolute;left:4px;bottom:4px;width:16px;height:16px;background:#fff;border-radius:50%;transition:.3s;transform:translateX(24px);"></span>
-            </label>
-        </div>
-    </div>
-
     <!-- Account Section -->
     <div class="card card-pad-lg" style="margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px;">
@@ -200,11 +133,69 @@
     </div>
 
     <!-- Success Notification -->
-    <div id="success-notification" style="position:fixed;top:80px;right:24px;background:#10b981;color:#fff;padding:16px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;align-items:center;gap:12px;z-index:1000;animation:slideIn 0.3s ease-out;">
+    <div id="success-notification" style="position:fixed;top:80px;right:24px;left:auto;background:#10b981;color:#fff;padding:16px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;align-items:center;gap:12px;z-index:10001;max-width:400px;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span style="font-weight:600;">Settings saved successfully!</span>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;pointer-events:none;">
+        <div class="modal" style="background:#1e293b;border-radius:16px;padding:28px;width:90%;max-width:500px;border:1px solid #334155;pointer-events:auto;position:relative;z-index:10000;">
+            <h3 style="font-size:20px;font-weight:700;margin:0 0 20px;">Change Password</h3>
+            <form id="changePasswordForm">
+                <div style="margin-bottom:16px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">Current Password</label>
+                    <input type="password" name="current_password" class="form-input" required style="background:#0f1a26;border:1px solid #334155;color:#e2e8f0;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">New Password</label>
+                    <input type="password" name="new_password" class="form-input" required style="background:#0f1a26;border:1px solid #334155;color:#e2e8f0;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">Confirm New Password</label>
+                    <input type="password" name="new_password_confirmation" class="form-input" required style="background:#0f1a26;border:1px solid #334155;color:#e2e8f0;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" onclick="closeChangePassword()" style="background:#374151;border:1px solid #4b5563;color:#e2e8f0;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="background:#10b981;border:1px solid #059669;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        Change Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Update Email Modal -->
+    <div id="updateEmailModal" class="modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;pointer-events:none;">
+        <div class="modal" style="background:#1e293b;border-radius:16px;padding:28px;width:90%;max-width:500px;border:1px solid #334155;pointer-events:auto;position:relative;z-index:10000;">
+            <h3 style="font-size:20px;font-weight:700;margin:0 0 20px;">Update Email</h3>
+            <form id="updateEmailForm">
+                <div style="margin-bottom:16px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">Current Email</label>
+                    <input type="email" value="{{ Auth::user()->email }}" readonly style="background:#0f1a26;border:1px solid #334155;color:#94a3b8;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="margin-bottom:16px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">New Email</label>
+                    <input type="email" name="new_email" class="form-input" required style="background:#0f1a26;border:1px solid #334155;color:#e2e8f0;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label class="form-label" style="display:block;margin-bottom:6px;color:#e2e8f0;">Confirm Password</label>
+                    <input type="password" name="password" class="form-input" required style="background:#0f1a26;border:1px solid #334155;color:#e2e8f0;padding:12px;border-radius:8px;width:100%;box-sizing:border-box;font-size:15px;">
+                </div>
+                <div style="display:flex;gap:12px;justify-content:flex-end;">
+                    <button type="button" onclick="closeUpdateEmail()" style="background:#374151;border:1px solid #4b5563;color:#e2e8f0;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        Cancel
+                    </button>
+                    <button type="submit" style="background:#10b981;border:1px solid #059669;color:#fff;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;">
+                        Update Email
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- Action Buttons -->
@@ -271,6 +262,8 @@
     #current-currency-display > div { display:flex; flex-direction:column; align-items:flex-start; gap:8px; }
     /* Reduce card padding for small screens */
     .card { padding:12px; }
+    /* Adjust notification position for mobile */
+    #success-notification { top:90px; right:12px; left:12px; max-width:none; }
 }
 </style>
 
@@ -352,20 +345,117 @@
 
     // Account actions
     function openChangePassword() {
-        alert('Change Password feature will be implemented here.\n\nYou will be able to:\n• Enter your current password\n• Set a new password\n• Confirm the new password');
+        const modal = document.getElementById('changePasswordModal');
+        modal.style.display = 'flex';
+        modal.style.pointerEvents = 'auto';
+    }
+
+    function closeChangePassword() {
+        const modal = document.getElementById('changePasswordModal');
+        modal.style.display = 'none';
+        modal.style.pointerEvents = 'none';
+        document.getElementById('changePasswordForm').reset();
     }
 
     function openUpdateEmail() {
-        alert('Update Email feature will be implemented here.\n\nYou will be able to:\n• Enter your new email address\n• Verify with current password\n• Receive confirmation email');
+        const modal = document.getElementById('updateEmailModal');
+        modal.style.display = 'flex';
+        modal.style.pointerEvents = 'auto';
     }
+
+    function closeUpdateEmail() {
+        const modal = document.getElementById('updateEmailModal');
+        modal.style.display = 'none';
+        modal.style.pointerEvents = 'none';
+        document.getElementById('updateEmailForm').reset();
+    }
+
+    // Change Password Form Submit
+    document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('{{ route("settings.password") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeChangePassword();
+                showNotification();
+            } else {
+                alert(data.message || 'Failed to change password. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
+
+    // Update Email Form Submit
+    document.getElementById('updateEmailForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('{{ route("settings.email") }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Object.fromEntries(formData))
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                closeUpdateEmail();
+                showNotification();
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1300);
+            } else {
+                alert(data.message || 'Failed to update email. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    });
 
     function confirmDeleteAccount() {
         if (confirm('⚠️ WARNING: This action cannot be undone!\n\nAre you absolutely sure you want to delete your account?\n\nThis will permanently delete:\n• All your personal data\n• All transactions and budgets\n• All savings goals and reports\n• Your entire account history')) {
             if (confirm('This is your final confirmation.\n\nType DELETE in the next prompt to confirm deletion.')) {
                 const confirmation = prompt('Type DELETE to confirm account deletion:');
                 if (confirmation === 'DELETE') {
-                    alert('Account deletion functionality will be implemented here.');
-                    // window.location.href = '/delete-account';
+                    fetch('{{ route("settings.delete-account") }}', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Your account has been deleted.');
+                            window.location.href = '/';
+                        } else {
+                            alert(data.message || 'Failed to delete account.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred. Please try again.');
+                    });
                 } else {
                     alert('Account deletion cancelled. The confirmation text did not match.');
                 }

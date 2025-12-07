@@ -24,7 +24,7 @@ if (!function_exists('currency_code')) {
     function currency_code()
     {
         if (auth()->check()) {
-            return auth()->user()->currency_code ?? 'EUR';
+            return auth()->user()->currency_code ?? 'PHP';
         }
         return 'EUR';
     }

@@ -201,7 +201,7 @@ class TransactionController extends Controller
         $data = [
             'user' => $user,
             'currencySymbol' => $user->currency_symbol ?? '€',
-            'currencyCode' => $user->currency_code ?? 'EUR',
+            'currencyCode' => $user->currency_code ?? 'PHP',
             'transactions' => $transactions,
             'incomeTransactions' => $incomeTransactions,
             'expenseTransactions' => $expenseTransactions,
