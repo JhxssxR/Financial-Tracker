@@ -15,12 +15,8 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // Get all 2025 transactions (year-to-date)
-        $currentYear = now()->year;
-        
-        $transactions = Transaction::where('user_id', $user->id)
-            ->whereYear('transaction_date', $currentYear)
-            ->get();
+        // Get ALL transactions (not filtered by year)
+        $transactions = Transaction::where('user_id', $user->id)->get();
         
         $totalIncome = $transactions->where('type', 'income')->sum('amount');
         $totalExpenses = $transactions->where('type', 'expense')->sum('amount');
@@ -74,32 +70,49 @@ class DashboardController extends Controller
     
     private function getMonthlyData($userId)
     {
+        // Get the earliest transaction date
+        $earliestTransaction = Transaction::where('user_id', $userId)
+            ->orderBy('transaction_date', 'asc')
+            ->first();
+        
+        if (!$earliestTransaction) {
+            return [
+                'months' => [],
+                'income' => [],
+                'expenses' => []
+            ];
+        }
+        
+        $startDate = $earliestTransaction->transaction_date->copy()->startOfMonth();
+        $endDate = now()->endOfMonth();
+        
         $months = [];
         $incomeData = [];
         $expenseData = [];
         
-        $currentYear = now()->year;
-        $currentMonth = now()->month;
+        // Loop through all months from earliest transaction to now
+        $currentDate = $startDate->copy();
         
-        // Get all months from January to current month of 2025
-        for ($month = 1; $month <= $currentMonth; $month++) {
-            $date = now()->setMonth($month)->setYear($currentYear);
-            $months[] = $date->format('M');
+        while ($currentDate <= $endDate) {
+            // Format: "Jan 2024", "Feb 2024", etc.
+            $months[] = $currentDate->format('M Y');
             
             $monthIncome = Transaction::where('user_id', $userId)
                 ->where('type', 'income')
-                ->whereMonth('transaction_date', $month)
-                ->whereYear('transaction_date', $currentYear)
+                ->whereMonth('transaction_date', $currentDate->month)
+                ->whereYear('transaction_date', $currentDate->year)
                 ->sum('amount');
             
             $monthExpense = Transaction::where('user_id', $userId)
                 ->where('type', 'expense')
-                ->whereMonth('transaction_date', $month)
-                ->whereYear('transaction_date', $currentYear)
+                ->whereMonth('transaction_date', $currentDate->month)
+                ->whereYear('transaction_date', $currentDate->year)
                 ->sum('amount');
             
             $incomeData[] = (float)$monthIncome;
             $expenseData[] = (float)$monthExpense;
+            
+            $currentDate->addMonth();
         }
         
         return [

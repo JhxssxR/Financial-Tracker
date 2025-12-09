@@ -12,7 +12,7 @@
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Income</div>
         <div id="incomeTotal" class="brand" style="font-size:28px;font-weight:700;margin-top:6px;text-align:right;">{{ format_currency($totalIncome) }}</div>
-        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">Year 2025</div>
+        <div class="muted" style="font-size:12px;margin-top:4px;text-align:right;">All Time</div>
     </div>
     <div class="card card-pad-lg">
         <div class="muted" style="font-weight:600;">Expenses</div>
