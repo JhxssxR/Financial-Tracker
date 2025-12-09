@@ -168,6 +168,37 @@ class TransactionController extends Controller
         return response()->json($response);
     }
     
+    public function edit($id)
+    {
+        $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
+        
+        return response()->json([
+            'success' => true,
+            'transaction' => $transaction
+        ]);
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);
+        
+        $validated = $request->validate([
+            'type' => 'required|in:income,expense',
+            'description' => 'required|string|max:255',
+            'amount' => 'required|numeric|min:0.01',
+            'category_id' => 'required|exists:categories,id',
+            'transaction_date' => 'required|date',
+        ]);
+        
+        $transaction->update($validated);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Transaction updated successfully!',
+            'transaction' => $transaction->load('category')
+        ]);
+    }
+    
     public function destroy($id)
     {
         $transaction = Transaction::where('user_id', Auth::id())->findOrFail($id);

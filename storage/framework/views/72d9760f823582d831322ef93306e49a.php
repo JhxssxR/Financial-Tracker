@@ -1,5 +1,3 @@
-
-
 <?php $__env->startSection('content'); ?>
 <div style="max-width:1080px;margin:0 auto;">
     <div class="page-header">
@@ -527,4 +525,4 @@
 <?php $__env->stopPush(); ?>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/settings.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('layouts.app', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH C:\xampp\htdocs\Financial-Tracker\resources\views/settings.blade.php ENDPATH**/ ?>

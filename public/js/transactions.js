@@ -47,7 +47,16 @@
         
         // Reset form and select income by default
         const form = document.getElementById('transactionForm');
-        if (form) form.reset();
+        if (form) {
+            form.reset();
+            form.action = form.action.replace(/\/\d+$/, ''); // Remove any transaction ID from URL
+        }
+        
+        // Reset to Add mode
+        document.getElementById('modalTitle').textContent = 'Add Transaction';
+        document.getElementById('formMethod').value = 'POST';
+        document.getElementById('transactionId').value = '';
+        
         selectType('income');
         updateCategories();
     }
@@ -85,13 +94,24 @@
         }
 
         const submitBtn = document.getElementById('submitBtn');
+        const submitBtnText = document.getElementById('submitBtnText');
+        const submitBtnIcon = document.getElementById('submitBtnIcon');
+        
         if (submitBtn) {
+            const isEditing = document.getElementById('transactionId').value;
+            
             if (type === 'income') {
-                submitBtn.innerHTML = '<svg style="margin-right:6px;" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Add Income';
+                if (submitBtnText) submitBtnText.textContent = isEditing ? 'Update Income' : 'Add Income';
+                if (submitBtnIcon) {
+                    submitBtnIcon.innerHTML = '<path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+                }
                 submitBtn.style.background = '#10b981';
                 submitBtn.style.borderColor = '#10b981';
             } else {
-                submitBtn.innerHTML = '<svg style="margin-right:6px;" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 7L7 17M7 17H15M7 17V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> Add Expense';
+                if (submitBtnText) submitBtnText.textContent = isEditing ? 'Update Expense' : 'Add Expense';
+                if (submitBtnIcon) {
+                    submitBtnIcon.innerHTML = '<path d="M17 7L7 17M7 17H15M7 17V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+                }
                 submitBtn.style.background = '#3b82f6';
                 submitBtn.style.borderColor = '#3b82f6';
             }
@@ -132,7 +152,15 @@
                 throw new Error('CSRF token not found');
             }
 
-            const res = await fetch(form.action, {
+            const transactionId = document.getElementById('transactionId').value;
+            const url = transactionId ? `/transactions/${transactionId}` : form.action;
+
+            // For updates, add _method field for Laravel's method spoofing
+            if (transactionId) {
+                formData.set('_method', 'PUT');
+            }
+
+            const res = await fetch(url, {
                 method: 'POST',
                 body: formData,
                 headers: {
@@ -181,13 +209,13 @@
                 closeTransactionModal();
                 window.location.reload();
             } else {
-                alert(data.message || 'Error adding transaction. Please try again.');
+                alert(data.message || 'Error saving transaction. Please try again.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalContent;
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('Error adding transaction: ' + error.message);
+            alert('Error saving transaction: ' + error.message);
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalContent;
         }
@@ -292,5 +320,103 @@
     window.submitTransaction = submitTransaction;
     window.filterTransactions = filterTransactions;
     window.clearFilters = clearFilters;
+
+    // Edit transaction function
+    window.editTransaction = async function(transactionId) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            const res = await fetch(`/transactions/${transactionId}/edit`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken.content,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data.success && data.transaction) {
+                const transaction = data.transaction;
+                
+                // Set modal title to Edit
+                document.getElementById('modalTitle').textContent = 'Edit Transaction';
+                
+                // Set hidden fields
+                document.getElementById('transactionId').value = transaction.id;
+                document.getElementById('formMethod').value = 'PUT';
+                
+                // Fill form fields
+                document.getElementById('descriptionInput').value = transaction.description;
+                document.getElementById('amountInput').value = transaction.amount;
+                document.getElementById('dateInput').value = transaction.transaction_date;
+                
+                // Select the type
+                selectType(transaction.type);
+                
+                // After categories are loaded, select the correct one
+                setTimeout(() => {
+                    document.getElementById('categorySelect').value = transaction.category_id;
+                }, 100);
+                
+                // Open modal
+                const modal = document.getElementById('transactionModal');
+                if (modal) {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                }
+            } else {
+                alert('Error loading transaction data');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error loading transaction: ' + error.message);
+        }
+    };
+
+    // Delete transaction function
+    window.deleteTransaction = async function(transactionId) {
+        if (!confirm('Are you sure you want to delete this transaction? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]');
+            if (!csrfToken) {
+                throw new Error('CSRF token not found');
+            }
+
+            const res = await fetch(`/transactions/${transactionId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken.content,
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+
+            const data = await res.json();
+
+            if (data.success) {
+                // Reload page to show updated list
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error deleting transaction');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error deleting transaction: ' + error.message);
+        }
+    };
 
 })();

@@ -273,13 +273,15 @@
             </div>
         </div>
         <script>
-            // Chat widget toggle + simple handlers
+            // Chat widget toggle + AI-powered handlers
             (function(){
                 const chatTrigger = document.getElementById('ai-chat-trigger');
                 const chatWindow = document.getElementById('chat-window');
                 const chatClose = document.getElementById('chat-close');
                 const chatInput = document.getElementById('chat-input');
                 const chatMessages = document.getElementById('chat-messages');
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                let isProcessing = false;
 
                 function openChat() { chatWindow.classList.add('active'); chatWindow.setAttribute('aria-hidden','false'); chatInput && chatInput.focus(); }
                 function closeChat() { chatWindow.classList.remove('active'); chatWindow.setAttribute('aria-hidden','true'); }
@@ -291,11 +293,73 @@
                 document.addEventListener('click', function(ev){ if (!chatWindow.contains(ev.target) && !chatTrigger.contains(ev.target)) closeChat(); });
                 document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeChat(); });
 
-                // Send message handlers
-                function appendBubble(text, who){ const d = document.createElement('div'); d.className = 'chat-bubble ' + (who === 'user' ? 'user' : 'bot'); d.textContent = text; chatMessages.appendChild(d); chatMessages.scrollTop = chatMessages.scrollHeight; }
+                // Append message bubble
+                function appendBubble(text, who){ 
+                    const d = document.createElement('div'); 
+                    d.className = 'chat-bubble ' + (who === 'user' ? 'user' : 'bot'); 
+                    d.textContent = text; 
+                    chatMessages.appendChild(d); 
+                    chatMessages.scrollTop = chatMessages.scrollHeight; 
+                }
 
-                function sendMessage(){ if(!chatInput) return; const v = chatInput.value.trim(); if(!v) return; appendBubble(v,'user'); chatInput.value = ''; // fake bot reply
-                    setTimeout(()=>{ appendBubble("Hello! I'm your AI Finance Assistant. I can help you with budgeting, saving, investing, and other finance-related questions. How can I assist you today?"); }, 600);
+                // Show typing indicator
+                function showTyping() {
+                    const typing = document.createElement('div');
+                    typing.id = 'typing-indicator';
+                    typing.className = 'chat-bubble bot';
+                    typing.innerHTML = '<span style="opacity:0.6">●●●</span>';
+                    chatMessages.appendChild(typing);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                function hideTyping() {
+                    const typing = document.getElementById('typing-indicator');
+                    if (typing) typing.remove();
+                }
+
+                // Send message to OpenAI via backend
+                async function sendMessage(){ 
+                    if(!chatInput || isProcessing) return; 
+                    const v = chatInput.value.trim(); 
+                    if(!v) return; 
+                    
+                    isProcessing = true;
+                    appendBubble(v,'user'); 
+                    chatInput.value = ''; 
+                    chatInput.disabled = true;
+                    showTyping();
+
+                    try {
+                        const response = await fetch('/chatbot/send', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                            body: JSON.stringify({ message: v })
+                        });
+
+                        hideTyping();
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (data.success && data.message) {
+                                appendBubble(data.message, 'bot');
+                            } else {
+                                appendBubble('I apologize, but I encountered an issue. Please try again.', 'bot');
+                            }
+                        } else {
+                            appendBubble('I\'m having trouble connecting right now. Please try again later.', 'bot');
+                        }
+                    } catch (error) {
+                        hideTyping();
+                        appendBubble('Network error. Please check your connection and try again.', 'bot');
+                    } finally {
+                        isProcessing = false;
+                        chatInput.disabled = false;
+                        chatInput.focus();
+                    }
                 }
 
                 document.getElementById('chat-send')?.addEventListener('click', function(e){ e.stopPropagation(); sendMessage(); });
@@ -478,4 +542,4 @@
     <?php echo $__env->yieldPushContent('scripts'); ?>
 </body>
 </html>
-<?php /**PATH C:\xampp\htdocs\IT9_FinancialTracker\resources\views/layouts/app.blade.php ENDPATH**/ ?>
+<?php /**PATH C:\xampp\htdocs\Financial-Tracker\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -36,6 +36,8 @@
 		
 		.transactions-table th:nth-child(3), .transactions-table td:nth-child(3) { display:none; }
 		.transactions-table td:nth-child(2) { max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+		.transactions-table td:nth-child(5) button { padding:6px 8px !important; }
+		.transactions-table td:nth-child(5) svg { width:14px !important; height:14px !important; }
 		
 		.summary-cards .card { padding:12px !important; }
 		.summary-cards .card > div:nth-child(2) { font-size:20px !important; }
@@ -111,6 +113,7 @@
 					<th style="text-align:left;padding:10px 8px;">Description</th>
 					<th style="text-align:left;padding:10px 8px;">Category</th>
 					<th style="text-align:right;padding:10px 8px;">Amount</th>
+					<th style="text-align:center;padding:10px 8px;">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -154,10 +157,26 @@
 					<td style="padding:14px 8px;text-align:right;font-weight:600;color:{{ $transaction->type === 'income' ? '#10b981' : '#f87171' }};">
 						{{ $transaction->type === 'income' ? '+' : '-' }}{{ format_currency($transaction->amount) }}
 					</td>
+					<td style="padding:14px 8px;text-align:center;">
+						<div style="display:flex;gap:8px;justify-content:center;align-items:center;">
+							<button onclick="editTransaction({{ $transaction->id }})" style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:8px 12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#1e293b'" title="Edit">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</button>
+							<button onclick="deleteTransaction({{ $transaction->id }})" style="background:#1e293b;border:1px solid #334155;border-radius:6px;padding:8px 12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='#334155'" onmouseout="this.style.background='#1e293b'" title="Delete">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+									<path d="M10 11v6M14 11v6" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+								</svg>
+							</button>
+						</div>
+					</td>
 				</tr>
 				@empty
 				<tr>
-					<td colspan="4" style="text-align:center;padding:32px;" class="muted">No transactions found</td>
+					<td colspan="5" style="text-align:center;padding:32px;" class="muted">No transactions found</td>
 				</tr>
 				@endforelse
 			</tbody>
@@ -216,12 +235,14 @@
                 <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" stroke="currentColor" stroke-width="2"/>
                 <path d="M8.5 14.5c0 1.105.895 2 2 2h2c1.105 0 2-.895 2-2s-.895-2-2-2h-1c-1.105 0-2-.895-2-2s.895-2 2-2h2c1.105 0 2 .895 2 2M12 6v2m0 8v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            <h2>Add Transaction</h2>
+            <h2 id="modalTitle">Add Transaction</h2>
             <button class="modal-close" onclick="closeTransactionModal()" type="button">✕</button>
         </div>
         <div class="modal-body">
             <form id="transactionForm" method="POST" action="{{ route('transactions.store') }}">
                 @csrf
+                <input type="hidden" name="_method" id="formMethod" value="POST">
+                <input type="hidden" name="transaction_id" id="transactionId" value="">
                 <input type="hidden" name="type" id="transactionType" value="income">
                 
                 <div class="form-group">
@@ -289,8 +310,11 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-cancel" onclick="closeTransactionModal()" type="button">Cancel</button>
-            <button class="btn btn-primary" id="submitBtn" onclick="submitTransaction()" type="button" style="width:auto;min-width:150px;padding:11px 20px;font-size:14px;font-weight:600;">
-                <span style="margin-right:6px;">📈</span> Add Income
+            <button class="btn btn-primary" id="submitBtn" onclick="submitTransaction()" type="button" style="width:auto;min-width:150px;padding:11px 20px;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;">
+                <svg id="submitBtnIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span id="submitBtnText">Add Income</span>
             </button>
         </div>
     </div>
