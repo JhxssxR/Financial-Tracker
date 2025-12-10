@@ -10,7 +10,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+        /* body */
         body {
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 10px;
