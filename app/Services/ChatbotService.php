@@ -50,7 +50,7 @@ class ChatbotService
                     ],
                     'generationConfig' => [
                         'temperature' => 0.7,
-                        'maxOutputTokens' => 500,
+                        'maxOutputTokens' => 2048,
                     ]
                 ]);
 
@@ -121,29 +121,48 @@ class ChatbotService
     private function buildSystemMessage(array $context): string
     {
         $systemMessage = "You are a helpful financial assistant for a personal finance tracking application. ";
-        $systemMessage .= "Help users understand their finances, provide budgeting advice, and answer financial questions. ";
+        $systemMessage .= "Your role is STRICTLY LIMITED to financial topics including: budgeting, saving, investing, spending, debt management, financial planning, and money management. ";
+        $systemMessage .= "\n\nIMPORTANT RESTRICTIONS:\n";
+        $systemMessage .= "- ONLY answer questions related to personal finance, money, budgets, savings, investments, expenses, and financial planning.\n";
+        $systemMessage .= "- If asked about non-financial topics (sports, entertainment, general knowledge, coding, etc.), politely decline and redirect: 'I'm specifically designed to help with financial questions. Please ask me about budgeting, saving, investing, or managing your finances.'\n";
+        $systemMessage .= "- Do NOT answer questions about: general knowledge, programming, health, entertainment, sports, politics, or any non-financial topics.\n";
+        $systemMessage .= "- Always stay within the scope of personal finance assistance.\n\n";
         $systemMessage .= "Be concise, friendly, and accurate. Use emojis occasionally to make responses engaging.";
 
         if (!empty($context)) {
-            $systemMessage .= "\n\nUser Financial Context:\n";
+            // Extract currency information
+            $currencySymbol = $context['currency_symbol'] ?? '₱';
+            $currencyCode = $context['currency_code'] ?? 'PHP';
             
-            if (isset($context['total_income'])) {
-                $systemMessage .= "- Total Income: " . $context['total_income'] . "\n";
+            $systemMessage .= "\n\n**CRITICAL: The user's currency is {$currencySymbol} ({$currencyCode}). ALWAYS use {$currencySymbol} when displaying any monetary amounts. NEVER use $ or USD.**\n";
+            $systemMessage .= "\nUser Financial Context:\n";
+            
+            if (isset($context['all_time_income'])) {
+                $systemMessage .= "- All-Time Total Income: {$currencySymbol}" . number_format($context['all_time_income'], 2) . "\n";
             }
-            if (isset($context['total_expenses'])) {
-                $systemMessage .= "- Total Expenses: " . $context['total_expenses'] . "\n";
+            if (isset($context['all_time_expenses'])) {
+                $systemMessage .= "- All-Time Total Expenses: {$currencySymbol}" . number_format($context['all_time_expenses'], 2) . "\n";
+            }
+            if (isset($context['month_income'])) {
+                $systemMessage .= "- This Month's Income: {$currencySymbol}" . number_format($context['month_income'], 2) . "\n";
+            }
+            if (isset($context['month_expenses'])) {
+                $systemMessage .= "- This Month's Expenses: {$currencySymbol}" . number_format($context['month_expenses'], 2) . "\n";
             }
             if (isset($context['budget'])) {
-                $systemMessage .= "- Budget: " . $context['budget'] . "\n";
+                $systemMessage .= "- Total Budget: {$currencySymbol}" . number_format($context['budget'], 2) . "\n";
             }
             if (isset($context['savings'])) {
-                $systemMessage .= "- Savings: " . $context['savings'] . "\n";
-            }
-            if (isset($context['top_categories'])) {
-                $systemMessage .= "- Top Spending Categories: " . implode(', ', $context['top_categories']) . "\n";
+                $systemMessage .= "- Total Savings: {$currencySymbol}" . number_format($context['savings'], 2) . "\n";
             }
             if (isset($context['net_savings'])) {
-                $systemMessage .= "- Net Savings This Month: " . $context['net_savings'] . "\n";
+                $systemMessage .= "- Net Savings (All-Time): {$currencySymbol}" . number_format($context['net_savings'], 2) . "\n";
+            }
+            if (isset($context['month_net'])) {
+                $systemMessage .= "- Net This Month: {$currencySymbol}" . number_format($context['month_net'], 2) . "\n";
+            }
+            if (isset($context['top_categories']) && !empty($context['top_categories'])) {
+                $systemMessage .= "- Top Spending Categories This Month: " . implode(', ', $context['top_categories']) . "\n";
             }
         }
 

@@ -46,13 +46,23 @@ class ChatbotController extends BaseController
         $currentMonth = now();
         
         try {
-            $totalIncome = $user->transactions()
+            // Get ALL-TIME totals
+            $allTimeIncome = $user->transactions()
+                ->where('type', 'income')
+                ->sum('amount') ?? 0;
+
+            $allTimeExpenses = $user->transactions()
+                ->where('type', 'expense')
+                ->sum('amount') ?? 0;
+
+            // Get current month totals
+            $monthIncome = $user->transactions()
                 ->where('type', 'income')
                 ->whereMonth('transaction_date', $currentMonth->month)
                 ->whereYear('transaction_date', $currentMonth->year)
                 ->sum('amount') ?? 0;
 
-            $totalExpenses = $user->transactions()
+            $monthExpenses = $user->transactions()
                 ->where('type', 'expense')
                 ->whereMonth('transaction_date', $currentMonth->month)
                 ->whereYear('transaction_date', $currentMonth->year)
@@ -73,22 +83,34 @@ class ChatbotController extends BaseController
                 ->take(3)
                 ->keys()
                 ->toArray();
+
+            // Get user currency
+            $currencySymbol = $user->currency_symbol ?? '₱';
+            $currencyCode = $user->currency_code ?? 'PHP';
         } catch (\Exception $e) {
             // If any database query fails, return basic context
-            $totalIncome = 0;
-            $totalExpenses = 0;
+            $allTimeIncome = 0;
+            $allTimeExpenses = 0;
+            $monthIncome = 0;
+            $monthExpenses = 0;
             $totalBudget = 0;
             $totalSavings = 0;
             $topCategories = [];
+            $currencySymbol = '₱';
+            $currencyCode = 'PHP';
         }
 
         return [
-            'currency' => $user->currency_symbol ?? '₱',
-            'total_income' => number_format($totalIncome, 2),
-            'total_expenses' => number_format($totalExpenses, 2),
-            'net_savings' => number_format($totalIncome - $totalExpenses, 2),
-            'budget' => number_format($totalBudget, 2),
-            'savings' => number_format($totalSavings, 2),
+            'currency_symbol' => $currencySymbol,
+            'currency_code' => $currencyCode,
+            'all_time_income' => $allTimeIncome,
+            'all_time_expenses' => $allTimeExpenses,
+            'month_income' => $monthIncome,
+            'month_expenses' => $monthExpenses,
+            'net_savings' => $allTimeIncome - $allTimeExpenses,
+            'month_net' => $monthIncome - $monthExpenses,
+            'budget' => $totalBudget,
+            'savings' => $totalSavings,
             'top_categories' => $topCategories,
         ];
     }

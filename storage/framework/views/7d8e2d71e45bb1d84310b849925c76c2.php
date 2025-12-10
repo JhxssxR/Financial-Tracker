@@ -95,25 +95,33 @@
                     $title = isset($notification->title) ? strtolower($notification->title) : '';
                     $msg = isset($notification->message) ? strtolower($notification->message) : '';
 
-                    // Budget notifications - critical / over budget (red)
+                    // Budget notifications - over budget (red) - ONLY when actually over 100%
                     if (
                         strpos($type, 'budget') !== false &&
                         (strpos($title, 'exceeded') !== false || strpos($title, 'over') !== false ||
-                         strpos($msg, 'exceeded') !== false || strpos($msg, 'over budget') !== false ||
-                         strpos($title, 'critical') !== false || strpos($msg, 'critical') !== false)
+                         strpos($msg, 'exceeded') !== false || strpos($msg, 'over budget') !== false || 
+                         strpos($msg, 'over by') !== false)
                     ) {
                         $leftColor = '#ef4444';
                         $statusBadge = 'Over Budget';
                     }
-                    // Budget notifications - near limit / warning (orange)
+                    // Budget notifications - critical (orange) - 90-100%
+                    elseif (
+                        strpos($type, 'budget') !== false &&
+                        (strpos($title, 'critical') !== false || strpos($msg, 'critical') !== false)
+                    ) {
+                        $leftColor = '#f59e0b';
+                        $statusBadge = 'Critical';
+                    }
+                    // Budget notifications - warning (yellow) - 75-90%
                     elseif (
                         strpos($type, 'budget') !== false &&
                         (strpos($title, 'near') !== false || strpos($title, 'warning') !== false ||
                          strpos($title, 'limit') !== false || strpos($msg, 'near') !== false ||
                          strpos($msg, 'approaching') !== false || strpos($msg, 'almost') !== false)
                     ) {
-                        $leftColor = '#f59e0b';
-                        $statusBadge = 'Near Limit';
+                        $leftColor = '#eab308';
+                        $statusBadge = 'Warning';
                     }
                     // Withdrawals (match type OR title OR message for common verbs)
                     elseif (
@@ -149,9 +157,15 @@
                                     <?php echo e($statusBadge); ?>
 
                                 </span>
-                            <?php elseif($statusBadge === 'Near Limit'): ?>
+                            <?php elseif($statusBadge === 'Critical'): ?>
                                 <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(245,158,11,0.15);color:#f59e0b;padding:6px 10px;border-radius:10px;border:1px solid rgba(245,158,11,0.2);font-size:13px;font-weight:700;">
                                     <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#f59e0b;color:#111;border-radius:50%;flex-shrink:0;font-size:11px;">⚠</span>
+                                    <?php echo e($statusBadge); ?>
+
+                                </span>
+                            <?php elseif($statusBadge === 'Warning'): ?>
+                                <span class="status-badge" style="display:inline-flex;align-items:center;gap:6px;background:rgba(234,179,8,0.15);color:#eab308;padding:6px 10px;border-radius:10px;border:1px solid rgba(234,179,8,0.2);font-size:13px;font-weight:700;">
+                                    <span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#eab308;color:#111;border-radius:50%;flex-shrink:0;font-size:11px;">⚠</span>
                                     <?php echo e($statusBadge); ?>
 
                                 </span>

@@ -74,7 +74,8 @@
         .chat-header .title { font-weight:700; color:#e6eef7; }
         .chat-header .sub { font-size:12px; color:#94a3b8; }
         .chat-messages { flex:1; padding:14px; overflow:auto; display:flex; flex-direction:column; gap:10px; background:linear-gradient(180deg,#071422,transparent); }
-        .chat-bubble { max-width:78%; padding:10px 12px; border-radius:10px; color:#e6eef7; font-size:14px; line-height:1.3; }
+        .chat-bubble { max-width:78%; padding:12px 14px; border-radius:10px; color:#e6eef7; font-size:14px; line-height:1.7; white-space:normal; word-wrap:break-word; }
+        .chat-bubble strong { font-weight:700; display:inline-block; margin-top:4px; }
         .chat-bubble.bot { background:#0f2a3a; align-self:flex-start; border:1px solid #203345; }
         .chat-bubble.user { background:#10b981; color:#06251d; align-self:flex-end; border:1px solid #0d6b4f; }
         .chat-input-area { padding:12px; border-top:1px solid #17212b; display:flex; gap:8px; background:#041018; }
@@ -282,6 +283,53 @@
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
                 let isProcessing = false;
 
+                // Get unique storage key per user
+                const userId = '{{ Auth::id() }}';
+                const chatStorageKey = `chat_history_user_${userId}`;
+
+                // Load chat history from localStorage
+                function loadChatHistory() {
+                    try {
+                        const savedHistory = localStorage.getItem(chatStorageKey);
+                        if (savedHistory) {
+                            const messages = JSON.parse(savedHistory);
+                            // Clear default welcome message
+                            chatMessages.innerHTML = '';
+                            // Restore messages
+                            messages.forEach(msg => {
+                                appendBubble(msg.text, msg.type, false); // false = don't save again
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Error loading chat history:', e);
+                    }
+                }
+
+                // Save chat history to localStorage
+                function saveChatHistory(text, type) {
+                    try {
+                        let history = [];
+                        const saved = localStorage.getItem(chatStorageKey);
+                        if (saved) {
+                            history = JSON.parse(saved);
+                        }
+                        history.push({ text, type, timestamp: Date.now() });
+                        // Keep only last 50 messages
+                        if (history.length > 50) {
+                            history = history.slice(-50);
+                        }
+                        localStorage.setItem(chatStorageKey, JSON.stringify(history));
+                    } catch (e) {
+                        console.error('Error saving chat history:', e);
+                    }
+                }
+
+                // Clear chat history (optional)
+                window.clearChatHistory = function() {
+                    localStorage.removeItem(chatStorageKey);
+                    chatMessages.innerHTML = '<div class="chat-bubble bot">Hello! I\'m your AI Finance Assistant. I can help you with budgeting, saving, investing, and other finance-related questions. How can I assist you today?</div>';
+                };
+
                 function openChat() { chatWindow.classList.add('active'); chatWindow.setAttribute('aria-hidden','false'); chatInput && chatInput.focus(); }
                 function closeChat() { chatWindow.classList.remove('active'); chatWindow.setAttribute('aria-hidden','true'); }
 
@@ -293,12 +341,37 @@
                 document.addEventListener('keydown', function(ev){ if (ev.key === 'Escape') closeChat(); });
 
                 // Append message bubble
-                function appendBubble(text, who){ 
+                function appendBubble(text, who, shouldSave = true){ 
                     const d = document.createElement('div'); 
                     d.className = 'chat-bubble ' + (who === 'user' ? 'user' : 'bot'); 
-                    d.textContent = text; 
+                    
+                    // Format text for better readability
+                    let formatted = text
+                        // First, handle numbered lists with bold text: "1. **Title:**" 
+                        .replace(/(\d+)\.\s*\*\*(.*?)\*\*/g, '<br><br><strong style="color:#10b981;">$1. $2</strong>')
+                        // Handle regular bold text
+                        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#10b981;">$1</strong>')
+                        // Convert asterisk bullets to proper bullets with spacing
+                        .replace(/\n\s*\*\s+/g, '<br>• ')
+                        // Add line breaks for regular newlines
+                        .replace(/\n/g, '<br>')
+                        // Clean up multiple consecutive <br> tags (max 2)
+                        .replace(/(<br\s*\/?>){3,}/gi, '<br><br>');
+                    
+                    // Remove leading <br> if any
+                    formatted = formatted.replace(/^(<br\s*\/?>)+/i, '');
+                    
+                    d.innerHTML = formatted; 
+                    d.style.whiteSpace = 'normal';
+                    d.style.wordWrap = 'break-word';
+                    d.style.lineHeight = '1.7';
                     chatMessages.appendChild(d); 
-                    chatMessages.scrollTop = chatMessages.scrollHeight; 
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    
+                    // Save to localStorage if needed
+                    if (shouldSave) {
+                        saveChatHistory(text, who);
+                    }
                 }
 
                 // Show typing indicator
@@ -363,6 +436,9 @@
 
                 document.getElementById('chat-send')?.addEventListener('click', function(e){ e.stopPropagation(); sendMessage(); });
                 chatInput?.addEventListener('keydown', function(e){ if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+                
+                // Load chat history when page loads
+                loadChatHistory();
             })();
 
             // User menu toggle
@@ -528,6 +604,7 @@
         // Clear localStorage on logout to prevent data leakage between users
         function clearUserData(event) {
             try {
+                // Clear all localStorage including chat history
                 localStorage.clear();
                 sessionStorage.clear();
             } catch (e) {
